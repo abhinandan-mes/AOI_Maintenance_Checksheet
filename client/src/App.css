@@ -39,7 +39,7 @@ body {
 }
 
 .navbar-container {
-  max-width: 1440px;
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
   padding: 0 2rem;
@@ -216,7 +216,7 @@ body {
 .main-content {
   flex: 1;
   width: 100%;
-  max-width: 1440px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 1rem 2rem 2rem 2rem;
   background: transparent;
@@ -879,4 +879,5 @@ html, body, #root, .app-layout {
     margin: 0 auto;
   }
 }
+
 

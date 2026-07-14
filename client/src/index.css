@@ -32,19 +32,6 @@ body {
   color: transparent !important;
   display: inline-block;
 }
-/* PC Display Responsive Scaling (Does not affect phones/tablets <= 1024px) */
-@media screen and (min-width: 1025px) and (max-width: 1366px) {
-  html {
-    zoom: 0.85;
-  }
-}
-@media screen and (min-width: 1367px) and (max-width: 1600px) {
-  html {
-    zoom: 0.95;
-  }
-}
-@media screen and (min-width: 1601px) {
-  html {
-    zoom: 1;
-  }
-}
+
+
+

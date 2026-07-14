@@ -1,5 +1,5 @@
 .reports-container {
-  max-width: 1450px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 30px 40px;
 }
@@ -795,4 +795,5 @@
     flex-wrap: wrap;
   }
 }
+
 
