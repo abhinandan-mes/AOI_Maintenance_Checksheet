@@ -20,7 +20,7 @@ This document serves as the project memory and system documentation for the **AO
 
 ## 🔑 User Roles & Permissions
 - **Super Admin & Admin**: Full system access, User Management capabilities, can view client IP addresses in logs.
-- **Manager**: Can manage system users, fill checksheets, and provide final approval for engineer-approved records.
+- **Manager**: Can manage system users (create/edit/delete users up to the `manager` role only), fill checksheets, and provide final approval for engineer-approved records.
 - **Engineer**: Can fill checksheets and approve/disapprove technician submissions.
 - **Technician**: Fills out and submits checksheet records. Disapproved checksheets are routed back here for editing.
 - **Inspector**: Strictly Read-only access. Blocked from creating, editing, or approving records.
