@@ -1,0 +1,107 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model AoiSpiMaintenanceRecord {
+  id                         Int      @id @default(autoincrement())
+  equipment_type             String   @db.VarChar(50) // "AOI" or "SPI"
+  machine_name               String?  @db.VarChar(100) // Machine Serial No.
+  machine_type               String?  @db.VarChar(100)
+  machine_asset_no           String?  @db.VarChar(100)
+  line                       String?  @db.VarChar(50)
+  date                       DateTime @db.Date
+  period                     String   @db.VarChar(50) // "First Month", "Second Month", "Third Month"
+  submitted_by               String?  @db.VarChar(150)
+  reviewed_by                String?  @db.VarChar(150) // Legacy Supervisor signature
+  engineer_reviewed_by       String?  @db.VarChar(150)
+  eng_reviewed_at            DateTime? @db.Timestamp(6)
+  manager_reviewed_by        String?  @db.VarChar(150)
+  mgr_approved_at            DateTime? @db.Timestamp(6)
+  designated_engineer_id     String?  @db.VarChar(150)
+  designated_manager_id      String?  @db.VarChar(150)
+  status                     String   @default("SUBMITTED") @db.VarChar(50)
+  rejection_reason           String?  @db.VarChar(500)
+  remarks                    String?  @db.VarChar(1000)
+  reassigned_by              String?  @db.VarChar(150)
+  reassigned_at              DateTime? @db.Timestamp(6)
+  submitted_ip               String?  @db.VarChar(100)
+  eng_reviewed_ip            String?  @db.VarChar(100)
+  mgr_approved_ip            String?  @db.VarChar(100)
+  reassigned_ip              String?  @db.VarChar(100)
+
+  // 8 Monthly Checks
+  m1_clean_test_area         Boolean?
+  m2_clean_inside_wipe_sensor Boolean?
+  m3_check_equipment_box     Boolean?
+  m4_clean_filter_cotton     Boolean?
+  m5_check_belt_dirty_damaged Boolean?
+  m6_check_rails_smooth      Boolean?
+  m7_check_tank_chain        Boolean?
+  m8_check_no_jitter         Boolean?
+  m9_clean_dust_collector    Boolean?
+  m10_exhaust_pipe_damaged   Boolean?
+
+  // 3 Quarterly Checks (Third Month)
+  q1_clean_cabinet_dust      Boolean?
+  q2_inspect_belt            Boolean?
+  q3_screws_rails_lubricant  Boolean?
+  q4_replace_filter_screen   Boolean?
+
+  created_at                 DateTime @default(now()) @db.Timestamp(6)
+  updated_at                 DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@index([date])
+  @@index([equipment_type])
+  @@index([line])
+  @@map("aoi_spi_maintenance_record")
+}
+
+model AppUser {
+  id            Int          @id @default(autoincrement())
+  username      String       @unique @db.VarChar(100)
+  password_hash String       @db.VarChar(255)
+  full_name     String       @db.VarChar(150)
+  role          String       @default("operator") @db.VarChar(50)
+  created_at    DateTime     @default(now()) @db.Timestamp(6)
+  updated_at    DateTime     @default(now()) @updatedAt @db.Timestamp(6)
+  sessions      AppSession[]
+
+  @@map("app_users")
+}
+
+model AppSession {
+  session_id  String    @id @db.Uuid
+  user_id     Int
+  public_ip   String?   @db.VarChar(100)
+  login_time  DateTime  @default(now()) @db.Timestamp(6)
+  logout_time DateTime? @db.Timestamp(6)
+  status      String    @default("active") @db.VarChar(50)
+  user        AppUser   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("app_sessions")
+}
+
+model FailedLoginAttempt {
+  id         Int      @id @default(autoincrement())
+  username   String   @db.VarChar(100)
+  public_ip  String?  @db.VarChar(100)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("failed_login_attempts")
+}
+
+model SystemEventLog {
+  id         Int      @id @default(autoincrement())
+  event_type String   @db.VarChar(100) // e.g. "LOGIN_SUCCESS", "LOGOUT", "PASSWORD_CHANGE", "USER_CREATE", "USER_UPDATE", "USER_DELETE"
+  username   String   @db.VarChar(150)
+  public_ip  String?  @db.VarChar(100)
+  details    String?  @db.VarChar(1000)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("system_event_logs")
+}

@@ -1,0 +1,108 @@
+name: Frontend QA & A11y CI Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test_and_audit:
+    runs-on: ubuntu-latest
+
+    services:
+      # Optional: Postgres DB service if E2E runs on integrated test db
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password123
+          POSTGRES_DB: aoi_maintenance_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+            testing-suite/package-lock.json
+
+      # 1. Install & Setup API Backend
+      - name: Install Server Dependencies
+        run: |
+          cd server
+          npm ci
+
+      - name: Setup Backend Environment & Migrations
+        env:
+          DATABASE_URL: postgresql://postgres:password123@localhost:5432/aoi_maintenance_db
+          JWT_SECRET: test_jwt_secret_token_1234
+          PORT: 5010
+        run: |
+          cd server
+          npx prisma migrate deploy
+          npm run start &
+          echo "Backend server successfully launched"
+
+      # 2. Install & Launch Client Server
+      - name: Install Client Dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Launch Client Application
+        env:
+          REACT_APP_API_URL: http://localhost:5010/api
+          PORT: 3010
+        run: |
+          cd client
+          npm run build
+          # Use npx serve to serve build in production mode or start the development server
+          npx serve -s build -l 3010 &
+          echo "Frontend app successfully launched"
+
+      # 3. Setup Testing Suite & Run Playwright + Lighthouse Audits
+      - name: Install Testing Suite Dependencies
+        run: |
+          cd testing-suite
+          npm ci
+
+      - name: Install Playwright Browsers
+        run: |
+          cd testing-suite
+          npx playwright install --with-deps
+
+      - name: Run E2E & Accessibility Tests (Playwright)
+        run: |
+          cd testing-suite
+          npm run test
+
+      - name: Run Google Lighthouse Audit (Quality Gate)
+        run: |
+          cd testing-suite
+          npm run audit:lighthouse
+
+      # 4. Upload HTML reports & visual test failures
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-audit-reports
+          path: |
+            testing-suite/playwright-report/
+            testing-suite/lighthouse-reports/
+            testing-suite/test-results/
+          retention-days: 14

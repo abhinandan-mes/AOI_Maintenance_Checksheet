@@ -1,0 +1,25 @@
+{
+  "name": "aoi-checklist-testing-suite",
+  "version": "1.0.0",
+  "description": "Enterprise-grade testing, accessibility auditing, and performance verification suite",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:debug": "npx playwright test --debug",
+    "test:report": "npx playwright show-report",
+    "audit:lighthouse": "npx ts-node scripts/lighthouse-audit.ts",
+    "db:seed": "npx ts-node scripts/seed-test-data.ts"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.49.0",
+    "chrome-launcher": "^1.1.2",
+    "lighthouse": "^12.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24"
+  }
+}
