@@ -23,7 +23,8 @@ const createToken = (user, sessionId) => jwt.sign(
 
 const logSystemEvent = async (eventType, username, req, details = null) => {
   try {
-    const publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    let publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    if (typeof publicIp === 'string' && publicIp.includes('.')) publicIp = publicIp.split(':')[0];
     await prisma.systemEventLog.create({
       data: {
         event_type: eventType,
@@ -47,7 +48,8 @@ router.post('/auth/login', async (req, res) => {
       where: { username: username.trim() }
     });
     if (!user) {
-      const publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+      let publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    if (typeof publicIp === 'string' && publicIp.includes('.')) publicIp = publicIp.split(':')[0];
       await prisma.failedLoginAttempt.create({
         data: {
           username: username.trim(),
@@ -59,7 +61,8 @@ router.post('/auth/login', async (req, res) => {
 
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatches) {
-      const publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+      let publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    if (typeof publicIp === 'string' && publicIp.includes('.')) publicIp = publicIp.split(':')[0];
       await prisma.failedLoginAttempt.create({
         data: {
           username: username.trim(),
@@ -70,7 +73,8 @@ router.post('/auth/login', async (req, res) => {
     }
 
     const sessionId = crypto.randomUUID();
-    const publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    let publicIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+    if (typeof publicIp === 'string' && publicIp.includes('.')) publicIp = publicIp.split(':')[0];
 
     await prisma.appSession.create({
       data: {
@@ -523,3 +527,4 @@ router.get('/auth/system-events', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+
