@@ -44,15 +44,23 @@ export default function UserManagement({ currentUser }) {
     { value: 'inspector', label: t('um_role_inspector') }
   ], [t]);
 
-  const roleOptions = useMemo(() => isSuperAdmin || isManager
-    ? [
+  const roleOptions = useMemo(() => {
+    if (isSuperAdmin) {
+      return [
         { value: 'super_admin', label: t('um_role_super_admin') },
-        // Admin role removed per system rules
         { value: 'manager', label: t('um_role_manager') },
         { value: 'engineer', label: t('um_role_engineer') },
         ...baseRoleOptions
-      ]
-    : baseRoleOptions, [isSuperAdmin, isManager, baseRoleOptions, t]);
+      ];
+    } else if (isManager) {
+      return [
+        { value: 'manager', label: t('um_role_manager') },
+        { value: 'engineer', label: t('um_role_engineer') },
+        ...baseRoleOptions
+      ];
+    }
+    return baseRoleOptions;
+  }, [isSuperAdmin, isManager, baseRoleOptions, t]);
 
   // Fetch all users on mount
   useEffect(() => {

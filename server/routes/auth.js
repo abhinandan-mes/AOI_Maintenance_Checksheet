@@ -106,7 +106,7 @@ router.post('/auth/create-user', authenticateToken, requireRoles(['super_admin',
 
     const allowedRoles = req.user.role === 'super_admin'
       ? ['super_admin', 'manager', 'engineer', 'technician', 'inspector']
-      : req.user.role === 'admin'
+      : req.user.role === 'admin' || req.user.role === 'manager'
       ? ['manager', 'engineer', 'technician', 'inspector']
       : ['engineer', 'technician', 'inspector'];
 
@@ -244,7 +244,7 @@ router.put('/auth/users/:id', authenticateToken, validateUpdateUser, async (req,
     const canEdit = isSelfEdit ||
                     (req.user.role === 'super_admin') || 
                     (req.user.role === 'admin' && targetUser.role !== 'super_admin') ||
-                    (req.user.role === 'manager' && ['engineer', 'technician', 'inspector'].includes(targetUser.role));
+                    (req.user.role === 'manager' && ['manager', 'engineer', 'technician', 'inspector'].includes(targetUser.role));
 
     if (!canEdit) {
       return res.status(403).json({ success: false, error: 'You do not have permission to edit this user' });
@@ -268,8 +268,8 @@ router.put('/auth/users/:id', authenticateToken, validateUpdateUser, async (req,
       }
       const allowedRoles = req.user.role === 'super_admin'
         ? ['super_admin', 'manager', 'engineer', 'technician', 'inspector']
-        : req.user.role === 'admin'
-        ? ['manager', 'engineer', 'technician', 'inspector']
+        : req.user.role === 'admin' || req.user.role === 'manager'
+      ? ['manager', 'engineer', 'technician', 'inspector']
         : ['engineer', 'technician', 'inspector'];
       if (!allowedRoles.includes(role)) {
         return res.status(403).json({ success: false, error: 'You are not allowed to assign that role' });
@@ -319,7 +319,7 @@ router.delete('/auth/users/:id', authenticateToken, async (req, res) => {
 
     const targetUser = await prisma.appUser.findUnique({
       where: { id: targetId },
-      select: { role: true }
+      select: { role: true, username: true }
     });
     if (!targetUser) return res.status(404).json({ success: false, error: 'User not found' });
 
@@ -333,7 +333,7 @@ router.delete('/auth/users/:id', authenticateToken, async (req, res) => {
 
     const canDelete = (req.user.role === 'super_admin') || 
                       (req.user.role === 'admin' && targetUser.role !== 'super_admin') ||
-                      (req.user.role === 'manager' && ['engineer', 'technician', 'inspector'].includes(targetUser.role));
+                      (req.user.role === 'manager' && ['manager', 'engineer', 'technician', 'inspector'].includes(targetUser.role));
 
     if (!canDelete) {
       return res.status(403).json({ success: false, error: 'You do not have permission to delete this user' });
@@ -343,7 +343,7 @@ router.delete('/auth/users/:id', authenticateToken, async (req, res) => {
       where: { id: targetId }
     });
 
-    await logSystemEvent('USER_DELETE', req.user.username, req, `Deleted user account: ID ${targetId}`);
+    await logSystemEvent('USER_DELETE', req.user.username, req, `Deleted user account: ${targetUser.username} (ID ${targetId})`);
 
     res.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {

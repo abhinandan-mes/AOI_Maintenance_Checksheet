@@ -233,14 +233,16 @@ export default function ActivityLog({ currentUser }) {
           labelEn = 'Password Changed';
           labelZh = '密码修改';
         } else if (sys.event_type === 'USER_CREATE') {
-          labelEn = 'User Created';
-          labelZh = '用户创建';
+          const target = sys.details ? (sys.details.match(/Created user: ([^\s]+)/) || [])[1] : null;
+          labelEn = target ? `User Created: ${target}` : 'User Created';
+          labelZh = target ? `创建用户: ${target}` : '用户创建';
         } else if (sys.event_type === 'USER_UPDATE') {
           labelEn = 'User Updated';
           labelZh = '用户管理信息更新';
         } else if (sys.event_type === 'USER_DELETE') {
-          labelEn = 'User Deleted';
-          labelZh = '用户帐号删除';
+          const target = sys.details ? (sys.details.match(/Deleted user account: ([^\s\(]+)/) || [])[1] : null;
+          labelEn = target ? `User Deleted: ${target}` : 'User Deleted';
+          labelZh = target ? `用户删除: ${target}` : '用户帐号删除';
         }
 
         rawEvents.push({
