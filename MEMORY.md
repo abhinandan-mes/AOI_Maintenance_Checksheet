@@ -31,7 +31,9 @@ This document serves as the project memory and system documentation for the **AO
 - **Consolidated Forms**: SPI, Pre-AOI, and Post-AOI checklists for the same line and date are grouped into a unified **3-in-1 consolidated review form**.
 - **Excel-Style Checklists**: Completed checksheets in the Reports view render as clean, structured table grids matching physical inspection list layouts.
 - **Responsive Layout**: Designed to natively fit the screen width (`max-width: 100%`) using Flexbox and Grid, seamlessly adapting to desktop monitors (1080p+), tablets, and phones without artificial downsizing.
+- **Login Layout Architecture**: The login page utilizes a structured flexbox layout (`.login-layout`) that completely decouples the footer from the main grid, allowing the login card to perfectly center itself in the remaining space (`flex: 1`).
 - **Modern Aesthetics**: Utilizes zero borders, soft drop shadows, rounded corners (8px-16px), scale hover effects, dim background modal overlays, and a unified status color system (Green for Approved, Purple for Pending Manager, Orange for Pending Engineer, Red for Disapproved).
+- **Branding**: The login page features the full system title ("AOI Team Maintenance Checksheet Management System") and all views feature a standardized footer ("AOI Maintenance Checksheet © 2026 VIVO").
 
 ---
 
