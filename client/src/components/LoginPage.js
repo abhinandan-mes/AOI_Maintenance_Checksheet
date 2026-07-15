@@ -86,7 +86,7 @@ export default function LoginPage({ onLogin }) {
         <div className="login-brand">
           <img src={vivoLogo} alt="vivo" />
           <span aria-hidden="true" />
-          <strong>{language === 'zh' ? 'AOI 团队保养检查表' : 'AOI Team Maintenance Checksheet'}</strong>
+          <strong>{language === 'zh' ? 'AOI 团队保养检查表管理系统' : 'AOI Team Maintenance Checksheet Management System'}</strong>
         </div>
 
         {/* ── Left Panel: Hero Copy ── */}
