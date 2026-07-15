@@ -79,8 +79,9 @@ export default function LoginPage({ onLogin }) {
   );
 
   return (
-    <main className="login-page">
-      <section className="login-shell">
+    <div className="login-layout">
+      <main className="login-page">
+        <section className="login-shell">
 
         {/* ── Left Panel: Brand Row ── */}
         <div className="login-brand">
@@ -195,6 +196,7 @@ export default function LoginPage({ onLogin }) {
         </div>
 
       </section>
+      </main>
 
       <div className="login-footer-info">
         <p>Equipment Maintenance Checksheet &copy; 2026 Vivo</p>
@@ -209,6 +211,6 @@ export default function LoginPage({ onLogin }) {
           </a>
         </p>
       </div>
-    </main>
+    </div>
   );
 }
