@@ -325,7 +325,7 @@ function App() {
       </main>
 
       <footer className="footer">
-        <p>Equipment Maintenance Checksheet &copy; 2026 Vivo</p>
+        <p>AOI Maintenance Checksheet &copy; 2026 VIVO</p>
         <p className="footer-credit">
           Designed, Developed &amp; Maintained by{" "}
           <a 
