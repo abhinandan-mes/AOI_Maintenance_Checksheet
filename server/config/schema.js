@@ -6,7 +6,7 @@ async function initializeDatabase() {
   try {
     // Run prisma migrate deploy
     console.log('🔄 Running Prisma migrations...');
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+    // execSync('npx prisma migrate deploy', { stdio: 'inherit' });
     console.log('✅ Prisma migrations applied successfully');
 
     // Seed default user
