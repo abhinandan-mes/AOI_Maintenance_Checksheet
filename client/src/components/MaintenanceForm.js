@@ -547,167 +547,80 @@ export default function MaintenanceForm({ currentUser }) {
     }
   };
 
-  // ── Excel-style 4-column Check Table ─────────────────────────────────────
-  // Columns: Cycle | Maintenance Check Content | First Month | Second Month | Third Month
-  // Only the currently selected period column is interactive; others are greyed out placeholders.
-  const renderExcelChecks = (data, onToggle, mc) => {
-    const monthlyChecks = getMonthlyChecks(mc.key);
-    const quarterlyChecks = getQuarterlyChecks(mc.key);
-    const periods = ['First Month', 'Second Month', 'Third Month'];
-    const activePeriod = common.period;
-
-    const monthlyHeader = language === 'zh'
-      ? '月度保养结果确认记录：'
-      : '__ Monthly maintenance result confirmation record:';
-
-    const quarterlyHeader = language === 'zh'
-      ? '季度保养结果确认记录：'
-      : 'Quarterly Maintenance Result Confirmation Record:';
-
-    return (
-      <div className="excel-table-wrap">
-        {/* ── TABLE HEADER ─────────────────────────────── */}
-        <div className="excel-table-grid">
-          <div className="excel-th excel-th-cycle">{language === 'zh' ? '保养周期' : 'Cycle'}</div>
-          <div className="excel-th excel-th-content">{language === 'zh' ? '保养检查内容' : 'Maintenance Check Content'}</div>
-          {periods.map(p => (
-            <div
-              key={p}
-              className={`excel-th excel-th-month ${p === activePeriod ? 'excel-th-month--active' : 'excel-th-month--inactive'}`}
-              style={p === activePeriod ? { background: mc.colorLight, color: mc.color, borderTop: `3px solid ${mc.color}` } : {}}
-            >
-              {p === 'First Month'  && (language === 'zh' ? '第一个月' : 'First Month')}
-              {p === 'Second Month' && (language === 'zh' ? '第二个月' : 'Second Month')}
-              {p === 'Third Month'  && (language === 'zh' ? '第三个月' : 'Third Month')}
-              {p === activePeriod && <span className="excel-active-dot" style={{ background: mc.color }} />}
-            </div>
-          ))}
+  // ── Reusable Check table ──────────────────────────────────────────────────
+  const renderChecks = (data, onToggle, mc) => (
+    <>
+      <div className="check-table">
+        <div className="check-table-head">
+          <div className="cthead-cycle">{language === 'zh' ? '保养周期' : 'Cycle'}</div>
+          <div className="cthead-content">{language === 'zh' ? '保养检查内容' : 'Maintenance Check Content'}</div>
+          <div className="cthead-status">{language === 'zh' ? '状态' : 'Status'}</div>
         </div>
 
-        {/* ── MONTHLY RESULT HEADER ROW ─────────────────── */}
-        <div className="excel-table-grid excel-section-header-row">
-          <div className="excel-cycle-cell excel-cycle-monthly" style={{ color: mc.color }}>
-            {language === 'zh' ? '月度' : 'Monthly'}
-          </div>
-          <div className="excel-content-cell excel-content-cell--filler" />
-          {periods.map(p => (
-            <div
-              key={p}
-              className={`excel-month-col-header ${p === activePeriod ? 'excel-month-col-header--active' : 'excel-month-col-header--inactive'}`}
-              style={p === activePeriod ? { color: mc.color } : {}}
-            >
-              {monthlyHeader}
+        {getMonthlyChecks(mc.key).map((c, idx) => (
+          <div
+            key={c.key}
+            className={`check-row ${data[c.key] ? 'check-row--done' : ''}`}
+            style={data[c.key] ? { borderLeftColor: mc.color } : {}}
+            onClick={() => !isReadOnly && onToggle(c.key)}
+          >
+            <div className="check-row-cycle">
+              {idx === 0 && (
+                <span className="cycle-badge" style={{ color: mc.color }}>
+                  {language === 'zh' ? '月度' : 'Monthly'}
+                </span>
+              )}
             </div>
-          ))}
-        </div>
-
-        {/* ── MONTHLY CHECK ROWS ────────────────────────── */}
-        {monthlyChecks.map((c, idx) => (
-          <div key={c.key} className="excel-table-grid excel-check-row">
-            <div className="excel-cycle-cell" />
-            <div className="excel-content-cell">
-              <span className="excel-content-num">{idx + 1}.</span>
-              <span className="excel-content-text">{c.label}</span>
+            <div className="check-row-content">
+              <span className="check-row-num">{idx + 1}</span>
+              <span className="check-row-text">{c.label}</span>
             </div>
-            {periods.map(p => {
-              const isActive = p === activePeriod;
-              const isChecked = isActive && data[c.key];
-              return (
-                <div
-                  key={p}
-                  className={`excel-month-cell ${isActive ? 'excel-month-cell--active' : 'excel-month-cell--inactive'}`}
-                  onClick={() => isActive && !isReadOnly && onToggle(c.key)}
-                  title={isActive && !isReadOnly ? (isChecked ? 'Click to uncheck' : 'Click to check') : ''}
-                >
-                  <span
-                    className={`excel-checkbox ${isActive ? 'excel-checkbox--active' : 'excel-checkbox--grey'} ${isChecked ? 'excel-checkbox--checked' : ''}`}
-                    style={isChecked ? { background: mc.color, borderColor: mc.color } : {}}
-                  >
-                    {isChecked ? '\u2713' : ''}
-                  </span>
-                </div>
-              );
-            })}
+            <div className="check-row-status">
+              <span
+                className={`check-mark ${data[c.key] ? 'check-mark--done' : ''}`}
+                style={data[c.key] ? { background: mc.color, borderColor: mc.color, color: 'white' } : {}}
+              >
+                {data[c.key] ? '\u2713' : ''}
+              </span>
+            </div>
           </div>
         ))}
-
-        {/* ── MONTHLY REMARKS ROW ───────────────────────── */}
-        <div className="excel-table-grid excel-remarks-row">
-          <div className="excel-cycle-cell" />
-          <div className="excel-content-cell excel-content-cell--filler" />
-          {periods.map(p => (
-            <div key={p} className={`excel-month-footer-cell ${p === activePeriod ? 'excel-month-footer-cell--active' : 'excel-month-footer-cell--inactive'}`}>
-              <span className="excel-footer-label">{language === 'zh' ? '备注：' : 'Remarks:'}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* ── MONTHLY DATE & SIGNATURE ROW ─────────────── */}
-        <div className="excel-table-grid excel-date-row">
-          <div className="excel-cycle-cell" />
-          <div className="excel-content-cell excel-content-cell--filler" />
-          {periods.map(p => (
-            <div key={p} className={`excel-month-footer-cell excel-month-footer-cell--datesig ${p === activePeriod ? 'excel-month-footer-cell--active' : 'excel-month-footer-cell--inactive'}`}>
-              <div className="excel-footer-date">{language === 'zh' ? '保养日期：_____' : 'Maintenance date: _____'}</div>
-              <div className="excel-footer-sig">{language === 'zh' ? '人员签字：___' : 'Personnel signature: ___'}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── QUARTERLY SECTION (Third Month only) ─────── */}
-        {isThirdMonth && (
-          <>
-            <div className="excel-table-grid excel-quarterly-header-row">
-              <div className="excel-cycle-cell excel-cycle-quarterly">
-                {language === 'zh' ? '季度' : 'Quarterly'}
-              </div>
-              <div className="excel-content-cell excel-content-cell--filler" />
-              <div className="excel-quarterly-block-header">
-                {quarterlyHeader}
-              </div>
-            </div>
-
-            {quarterlyChecks.map((c, idx) => (
-              <div key={c.key} className="excel-table-grid excel-check-row excel-check-row--quarterly">
-                <div className="excel-cycle-cell" />
-                <div className="excel-content-cell">
-                  <span className="excel-content-num excel-content-num--quarterly">{idx + 1}.</span>
-                  <span className="excel-content-text excel-content-text--quarterly">{c.label}</span>
-                </div>
-                <div className="excel-month-cell excel-month-cell--inactive excel-quarterly-na">
-                  <span className="excel-quarterly-na-label">—</span>
-                </div>
-                <div className="excel-month-cell excel-month-cell--inactive excel-quarterly-na">
-                  <span className="excel-quarterly-na-label">—</span>
-                </div>
-                <div
-                  className="excel-month-cell excel-month-cell--active excel-month-cell--quarterly"
-                  onClick={() => !isReadOnly && onToggle(c.key)}
-                >
-                  <span
-                    className={`excel-checkbox excel-checkbox--active ${data[c.key] ? 'excel-checkbox--checked excel-checkbox--quarterly-checked' : ''}`}
-                    style={data[c.key] ? { background: '#6d28d9', borderColor: '#6d28d9' } : { borderColor: '#7c3aed' }}
-                  >
-                    {data[c.key] ? '\u2713' : ''}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            <div className="excel-table-grid excel-quarterly-footer-row">
-              <div className="excel-cycle-cell" />
-              <div className="excel-content-cell excel-content-cell--filler" />
-              <div className="excel-quarterly-footer-block">
-                <span className="excel-footer-label">{language === 'zh' ? '备注：' : 'Remarks:'}</span>
-                <div className="excel-footer-date" style={{ marginTop: '8px' }}>{language === 'zh' ? '保养日期：_________' : 'Maintenance date: _________'}</div>
-                <div className="excel-footer-sig">{language === 'zh' ? '人员签字：______' : 'Personnel signature: ______'}</div>
-              </div>
-            </div>
-          </>
-        )}
       </div>
-    );
-  };
+
+      {isThirdMonth && (
+        <div className="check-table check-table--quarterly">
+          {getQuarterlyChecks(mc.key).map((c, idx) => (
+            <div
+              key={c.key}
+              className={`check-row ${data[c.key] ? 'check-row--done' : ''}`}
+              style={data[c.key] ? { borderLeftColor: '#6d28d9' } : {}}
+              onClick={() => !isReadOnly && onToggle(c.key)}
+            >
+              <div className="check-row-cycle">
+                {idx === 0 && (
+                  <span className="cycle-badge cycle-badge--quarterly" style={{ color: '#6d28d9' }}>
+                    {language === 'zh' ? '季度' : 'Quarterly'}
+                  </span>
+                )}
+              </div>
+              <div className="check-row-content">
+                <span className="check-row-num">{getMonthlyChecks(mc.key).length + idx + 1}</span>
+                <span className="check-row-text">{c.label}</span>
+              </div>
+              <div className="check-row-status">
+                <span
+                  className={`check-mark ${data[c.key] ? 'check-mark--done' : ''}`}
+                  style={data[c.key] ? { background: '#6d28d9', borderColor: '#6d28d9', color: 'white' } : {}}
+                >
+                  {data[c.key] ? '\u2713' : ''}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
   // ══════════════════════════════════════════════════════════════════════════
   // VIEW 1 — Line Selection (Only in create mode when form not started)
   // ══════════════════════════════════════════════════════════════════════════
@@ -1033,7 +946,7 @@ export default function MaintenanceForm({ currentUser }) {
                   {/* Checks body */}
                   <div className="mcard-body">
                     <div className="checks-wrap">
-                      {renderExcelChecks(data, (key) => toggleCheck(mc.key, key), mc)}
+                      {renderChecks(data, (key) => toggleCheck(mc.key, key), mc)}
                     </div>
 
                     
