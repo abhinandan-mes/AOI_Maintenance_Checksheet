@@ -265,7 +265,7 @@ export default function MaintenanceForm({ currentUser }) {
   }, [id]); // eslint-disable-line
 
   // ── Check definitions ─────────────────────────────────────────────────────
-  const getMonthlyChecks = (machineKey) => {
+    const getMonthlyChecks = (machineKey) => {
     if (machineKey === 'LASER') {
       return [
         { key: 'm1_clean_test_area',          label: t('m1_label') },
@@ -281,14 +281,14 @@ export default function MaintenanceForm({ currentUser }) {
       ];
     }
     return [
-      { key: 'm1_clean_test_area',          label: t('m1_label') },
-      { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label') },
-      { key: 'm3_check_equipment_box',      label: t('m3_label') },
-      { key: 'm4_clean_filter_cotton',      label: t('m4_label') },
-      { key: 'm5_check_belt_dirty_damaged', label: t('m5_label') },
-      { key: 'm6_check_rails_smooth',       label: t('m6_label') },
-      { key: 'm7_check_tank_chain',         label: t('m7_label') },
-      { key: 'm8_check_no_jitter',          label: t('m8_label') },
+      { key: 'm1_clean_test_area',          label: t('spi_m1_label') },
+      { key: 'm2_clean_inside_wipe_sensor', label: t('spi_m2_label') },
+      { key: 'm3_check_equipment_box',      label: t('spi_m3_label') },
+      { key: 'm4_clean_filter_cotton',      label: t('spi_m4_label') },
+      { key: 'm5_check_belt_dirty_damaged', label: t('spi_m5_label') },
+      { key: 'm6_check_rails_smooth',       label: t('spi_m6_label') },
+      { key: 'm7_check_tank_chain',         label: t('spi_m7_label') },
+      { key: 'm8_check_no_jitter',          label: t('spi_m8_label') },
     ];
   };
 

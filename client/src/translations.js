@@ -30,22 +30,35 @@ export const translations = {
     maint_review_success: "✓ Record reviewed and approved successfully",
 
     // Monthly Check Labels — exact wording from Excel source document
-    m1_label: "Clean the scattered materials",
-    m2_label: "Clean the dust inside ; Wipe track and stop plate sensor",
-    m3_label: "Clean the sundries",
-    m4_label: "Clean filter cotton",
-    m5_label: "Check belt no dirty or damaged",
-    m6_label: "Check track runs smoothly",
-    m7_label: "Check tank chain is normal",
-    m8_label: "No shaft shaking during machine running",
+    m1_label: "Check the machine's internal test area for foreign objects",
+    m2_label: "Clean the inside of the machine and wipe the sensor",
+    m3_label: "Check if there are any items in the equipment box",
+    m4_label: "Check that the ribbon inside and outside the fan is fluttering, then remove the filter to clean the dust",
+    m5_label: "Check if the belt is dirty",
+    m6_label: "Check that the equipment rails are smooth",
+    m7_label: "Check that the tank chain of the moving parts of the equipment is normal",
+    m8_label: "Whether the machine is jittering when testing X and Y axes",
     m9_label: "Clean the dust in the extraction dust collector",
     m10_label: "Check whether the exhaust pipe is damaged",
+    // SPI/AOI Monthly
+    spi_m1_label: "Clean the scattered materials",
+    spi_m2_label: "Clean the dust inside ; Wipe track and stop plate sensor",
+    spi_m3_label: "Clean the sundries",
+    spi_m4_label: "Clean filter cotton",
+    spi_m5_label: "Check belt no dirty or damaged",
+    spi_m6_label: "Check track runs smoothly",
+    spi_m7_label: "Check tank chain is normal",
+    spi_m8_label: "No shaft shaking during machine running",
 
     // Quarterly Check Labels — exact wording from Excel source document
-    q1_label: "Clean the dust in the equipment cabinet",
-    q2_label: "inspect the belt for cleaning or replacement",
-    q3_label: "X, Y, Z shaft screw rod and guide rail decontamination and oil filling",
+    q1_label: "Clean the dust in the pre-filter of the equipment chassis, galvanometer and smoke purifier",
+    q2_label: "Inspect the belt for cleaning or replacement",
+    q3_label: "Screws and rails: remove oil, add new lubricant (Include Z axis)",
     q4_label: "Check whether the filter screen of the dust collector needs to be replaced",
+    // SPI/AOI Quarterly
+    spi_q1_label: "Clean the dust in the equipment cabinet",
+    spi_q2_label: "inspect the belt for cleaning or replacement",
+    spi_q3_label: "X, Y, Z shaft screw rod and guide rail decontamination and oil filling",
 
     // Common
     yes: "Yes",
@@ -316,22 +329,35 @@ export const translations = {
     maint_review_success: "✓ 记录已成功审核签字",
 
     // Monthly Check Labels (Chinese) — 与Excel原文对照更新
-    m1_label: "清理散落物料",
-    m2_label: "清理内部灰尘；擦拭轨道和挡板传感器",
-    m3_label: "清理杂物",
-    m4_label: "清洁过滤棉",
-    m5_label: "检查皮带无脏污或破损",
-    m6_label: "检查轨道运行顺畅",
-    m7_label: "检查坦克链正常",
-    m8_label: "机器运行时轴无抖动",
+    m1_label: "检查设备内部测试区域有无异物",
+    m2_label: "清洁设备内部及擦拭传感器",
+    m3_label: "检查设备箱体内是否有物品",
+    m4_label: "检查风扇内外飘带是否飘动，拆下过滤网清洁灰尘",
+    m5_label: "检查皮带是否脏污",
+    m6_label: "检查设备轨道是否顺畅",
+    m7_label: "检查设备运动部件坦克链状态是否正常",
+    m8_label: "测试X轴和Y轴时设备运行是否有抖动",
     m9_label: "清理抽尘除尘器内灰尘",
     m10_label: "检查排风管有无破损",
+    // SPI/AOI Monthly
+    spi_m1_label: "清理散落物料",
+    spi_m2_label: "清理内部灰尘；擦拭轨道和挡板传感器",
+    spi_m3_label: "清理杂物",
+    spi_m4_label: "清洁过滤棉",
+    spi_m5_label: "检查皮带无脏污或破损",
+    spi_m6_label: "检查轨道运行顺畅",
+    spi_m7_label: "检查坦克链正常",
+    spi_m8_label: "机器运行时轴无抖动",
 
     // Quarterly Check Labels (Chinese) — 与Excel原文对照更新
-    q1_label: "清理设备机柜内的灰尘",
-    q2_label: "检查皮带进行清洁或更换",
-    q3_label: "X、Y、Z轴丝杆及导轨去污加油",
+    q1_label: "清理设备机箱预过滤网、振镜及烟雾净化器粉尘",
+    q2_label: "检查皮带，决定是否清洗或更换",
+    q3_label: "丝杆、导轨去油，加新润滑脂（包含Z轴）",
     q4_label: "除尘器过滤网是否需要更换",
+    // SPI/AOI Quarterly
+    spi_q1_label: "清理设备机柜内的灰尘",
+    spi_q2_label: "检查皮带进行清洁或更换",
+    spi_q3_label: "X、Y、Z轴丝杆及导轨去污加油",
 
     // Common
     yes: "是",
