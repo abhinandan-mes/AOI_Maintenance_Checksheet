@@ -29,5 +29,20 @@
 * **Active Timeline Highlights**: Workflow timelines must highlight the currently active pending step (e.g. orange for pending engineer, purple for pending manager) instead of showing a flat gray marker.
 * **Consolidated Homepage Activity Log**: The homepage activity log must group activities by Line, Period, User, Action, and time, displaying only a single line-wise row (omitting equipment type badges and specific machine listings).
 
+## Checksheet Form Layout (Excel-Style)
+* **5-Column Excel Table Layout**: The maintenance checksheet form (`MaintenanceForm.js`) must render check items as a 5-column Excel-style grid table: `Cycle | Maintenance Check Content | First Month | Second Month | Third Month`. This replaces the old single-column vertical checkbox list. The rendering function is `renderExcelChecks()`.
+* **Active vs Inactive Month Columns**: Only the currently selected period column (First/Second/Third Month) is interactive (coloured header, clickable checkboxes). The other two month columns are displayed greyed out as visual reference — not clickable.
+* **Quarterly Section on Third Month Only**: When Third Month is selected, a Quarterly section appears below the monthly rows. It spans all three month columns. The First Month and Second Month quarterly cells show a greyed-out dash `—`. Only the Third Month quarterly column is active and interactive.
+* **Unique Check Items Per Machine**: LASER machines have unique extra checks (m9: dust collector, m10: exhaust pipe) in addition to the standard 8 monthly checks. SPI, Pre-AOI, and Post-AOI use the standard 8 monthly checks. Each machine's checklist must remain unique — never homogenise them.
+* **Monthly Remarks & Footer Rows**: Each month column must display a `Remarks:` row and a `Maintenance date / Personnel signature` footer row below the checklist, matching the physical Excel inspection sheet format.
+* **CSS Classes**: All Excel table styles use `.excel-table-wrap`, `.excel-table-grid`, `.excel-th-*`, `.excel-cycle-cell`, `.excel-content-cell`, `.excel-month-cell`, `.excel-checkbox`, `.excel-quarterly-*` classes defined in `MaintenanceForm.css`. Never use Tailwind.
+
+## Backend & Infrastructure
+* **Backend Auto-Start (Windows Service)**: The Node.js Express backend (`D:\AOI_Maintenance_Checksheet-main\server\server.js`) runs as a native Windows Service named **"AOI Maintenance Backend"**, installed via `node-windows` using the script `server/install-service.js`. The backend starts at system boot without requiring any user login, and is managed via `services.msc`. **Do NOT use PM2 for this project's backend.**
+* **Prisma Migrate Deploy Disabled on Startup**: The `execSync('npx prisma migrate deploy')` line in `server/config/schema.js` is permanently commented out. Running `prisma migrate deploy` on an already-populated production database throws Prisma error `P3005` and crashes the server. If new database migrations are ever needed, they must be run manually from the command line — never automatically on server boot.
+* **Other Project Separation**: The other project (`D:\AOi_check_sheet`, port 5001) uses a completely separate auto-start mechanism — a Windows Startup Shortcut (`.lnk`) pointing to a hidden VBS launcher (`start-server-hidden.vbs`). The two projects are fully independent. Never add `AOi_check_sheet` to PM2 or this project's Windows Service.
+* **Frontend Hosting**: The React frontend (`client/build`) is served by IIS on port 3010, which starts automatically as a Windows Service on system boot. No separate frontend process manager is needed.
+
 ## CSS Architecture
 * **Strict Vanilla CSS**: This project relies strictly on pure Vanilla CSS. Tailwind CSS utility classes are NOT compiled and will fail to render if used. All premium UI components must be implemented using custom `.css` classes.
+
