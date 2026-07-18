@@ -401,9 +401,11 @@ export default function Home({ currentUser }) {
                       </td>
                       <td>
                         {event.period === '—' && '—'}
+                        {event.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
                         {event.period === 'First Month' && (language === 'zh' ? '第一月 (M1)' : 'Month 1')}
                         {event.period === 'Second Month' && (language === 'zh' ? '第二月 (M2)' : 'Month 2')}
                         {event.period === 'Third Month' && (language === 'zh' ? '第三月 (M3)' : 'Month 3')}
+                        {event.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
                       </td>
                       <td>
                         <span className={`status-badge ${getActivityBadgeClass(event.action)}`}>

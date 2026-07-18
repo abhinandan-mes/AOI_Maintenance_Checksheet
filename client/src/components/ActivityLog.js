@@ -486,15 +486,16 @@ export default function ActivityLog({ currentUser }) {
               <option value="FAILED_LOGIN">{language === 'zh' ? '登录失败' : 'Failed Logins'}</option>
             </select>
           </div>
-
           <div className="filter-item">
             <label>{language === 'zh' ? '保养周期' : 'PERIOD'}</label>
             <select value={selectedPeriod} onChange={e => setSelectedPeriod(e.target.value)}>
               <option value="ALL">{language === 'zh' ? '所有周期' : 'All Periods'}</option>
               <option value="—">{language === 'zh' ? '无 (系统事件)' : 'None (System)'}</option>
+              <option value="Weekly">{language === 'zh' ? '每周保养' : 'Weekly'}</option>
               <option value="First Month">{language === 'zh' ? '第一月 (M1)' : 'Month 1'}</option>
               <option value="Second Month">{language === 'zh' ? '第二月 (M2)' : 'Month 2'}</option>
               <option value="Third Month">{language === 'zh' ? '第三月 (M3)' : 'Month 3'}</option>
+              <option value="Yearly">{language === 'zh' ? '每年保养' : 'Yearly'}</option>
             </select>
           </div>
           
@@ -576,9 +577,11 @@ export default function ActivityLog({ currentUser }) {
                       </td>
                       <td>
                         {event.period === '—' && '—'}
+                        {event.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
                         {event.period === 'First Month' && (language === 'zh' ? '第一月 (M1)' : 'Month 1')}
                         {event.period === 'Second Month' && (language === 'zh' ? '第二月 (M2)' : 'Month 2')}
                         {event.period === 'Third Month' && (language === 'zh' ? '第三月 (M3)' : 'Month 3')}
+                        {event.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
                       </td>
                       <td>
                         <span className={`log-pill ${getActivityBadgeClass(event.action)}`}>
