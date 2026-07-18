@@ -818,19 +818,24 @@ export default function MaintenanceForm({ currentUser }) {
                 </div>
                 
                 {maintenanceType === 'Monthly' && (
-                  <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-8px' }}>
-                    {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
-                      <button
-                        key={p}
-                        type="button"
-                        className={`period-tab ${common.period === p ? 'active' : ''}`}
-                        onClick={() => setCommon(prev => ({ ...prev, period: p }))}
-                      >
-                        {language === 'zh'
-                          ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
-                          : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
-                      </button>
-                    ))}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
+                    <h3 style={{ fontSize: '0.95rem', color: '#475569', margin: 0, fontWeight: 600 }}>
+                      {language === 'zh' ? '选择保养月份' : 'Select Maintenance Month'}
+                    </h3>
+                    <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-4px' }}>
+                      {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
+                        <button
+                          key={p}
+                          type="button"
+                          className={`period-tab ${common.period === p ? 'active' : ''}`}
+                          onClick={() => setCommon(prev => ({ ...prev, period: p }))}
+                        >
+                          {language === 'zh'
+                            ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
+                            : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
