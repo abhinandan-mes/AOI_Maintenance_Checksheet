@@ -114,8 +114,8 @@ const validateMaintenanceRecord = (req, res, next) => {
 
   const periodErr = validateString(period, 50, true);
   if (periodErr) errors.period = periodErr;
-  else if (!['First Month', 'Second Month', 'Third Month'].includes(period)) {
-    errors.period = 'must be First Month, Second Month or Third Month';
+  else if (!['Weekly', 'First Month', 'Second Month', 'Third Month', 'Yearly'].includes(period)) {
+    errors.period = 'must be Weekly, First Month, Second Month, Third Month or Yearly';
   }
 
   const subByErr = validateString(submitted_by, 150);
