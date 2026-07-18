@@ -355,7 +355,7 @@ export default function MaintenanceForm({ currentUser }) {
     ];
   };
 
-  const isThirdMonth   = common.period === 'Third Month';
+  const isThirdMonth   = common.period === 'Third Month' || common.period === 'Yearly';
   const isMachineFilled = (machineData, eqType) => {
     const isLaser = eqType === 'LASER';
     const checks = [...getMonthlyChecks(eqType), ...(isThirdMonth ? getQuarterlyChecks(eqType) : [])];
@@ -681,7 +681,9 @@ export default function MaintenanceForm({ currentUser }) {
               <div className="check-row-cycle">
                 {idx === 0 && (
                   <span className="cycle-badge cycle-badge--quarterly" style={{ color: '#6d28d9' }}>
-                    {language === 'zh' ? '季度' : 'Quarterly'}
+                    {language === 'zh' 
+                      ? (maintenanceType === 'Yearly' ? '年度' : '季度') 
+                      : (maintenanceType === 'Yearly' ? 'Yearly' : 'Quarterly')}
                   </span>
                 )}
               </div>
