@@ -159,11 +159,11 @@ export default function PendingRecords({ currentUser }) {
   }, [pendingRecords, language]);
 
   const getPeriodLabel = (period) => {
-    if (period === 'Weekly') return language === 'zh' ? '每周' : 'Weekly';
-    if (period === 'First Month') return t('maint_period_m1');
-    if (period === 'Second Month') return t('maint_period_m2');
-    if (period === 'Third Month') return t('maint_period_m3');
-    if (period === 'Yearly') return language === 'zh' ? '每年' : 'Yearly';
+    if (period === 'Weekly') return language === 'zh' ? '每周保养 (Weekly)' : 'Weekly Maintenance';
+    if (period === 'First Month') return language === 'zh' ? '每月保养 (M1 第一月)' : 'Monthly (Month 1)';
+    if (period === 'Second Month') return language === 'zh' ? '每月保养 (M2 第二月)' : 'Monthly (Month 2)';
+    if (period === 'Third Month') return language === 'zh' ? '每月保养 (M3 季度)' : 'Monthly (Month 3 - Quarterly)';
+    if (period === 'Yearly') return language === 'zh' ? '每年保养 (Yearly)' : 'Yearly Maintenance';
     return period;
   };
 

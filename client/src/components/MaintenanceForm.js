@@ -215,7 +215,7 @@ export default function MaintenanceForm({ currentUser }) {
   }, [isEditMode]);
 
   useEffect(() => {
-    if (isEditMode) return;
+    if (isEditMode || !formStarted) return;
     // Don't serialize file objects
     const machinesToSave = {};
     for (const key in machines) {
@@ -644,7 +644,9 @@ export default function MaintenanceForm({ currentUser }) {
             <div className="check-row-cycle">
               {idx === 0 && (
                 <span className="cycle-badge" style={{ color: mc.color }}>
-                  {language === 'zh' ? '月度' : 'Monthly'}
+                  {language === 'zh' 
+                    ? (maintenanceType === 'Weekly' ? '每周' : (maintenanceType === 'Yearly' ? '年度' : '月度'))
+                    : (maintenanceType === 'Weekly' ? 'Weekly' : (maintenanceType === 'Yearly' ? 'Yearly' : 'Monthly'))}
                 </span>
               )}
             </div>
@@ -916,7 +918,13 @@ export default function MaintenanceForm({ currentUser }) {
             </button>
           ) : (
             <button type="button" className="topbar-back-btn"
-              onClick={() => { setFormStarted(false); setSelectedLine(''); setCommon(prev => ({ ...prev, line: '' })); }}>
+              onClick={() => { 
+                setFormStarted(false); 
+                setSelectedLine(''); 
+                setMaintenanceType('');
+                setCommon(prev => ({ ...prev, line: '', period: '' })); 
+                sessionStorage.removeItem('maintenanceDraft');
+              }}>
               ← {language === 'zh' ? '换产线' : 'Change Line'}
             </button>
           )}

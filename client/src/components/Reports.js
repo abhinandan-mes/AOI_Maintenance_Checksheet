@@ -1001,7 +1001,7 @@ export default function Reports({ currentUser }) {
                 <th style={{ width: '40px' }}></th>
                 <th>{t('date')}</th>
                 <th>{t('line')}</th>
-                <th>{language === 'zh' ? '保养周期' : 'Period'}</th>
+                <th>{language === 'zh' ? '保养类型' : 'Maintenance Type'}</th>
                 <th>{language === 'zh' ? '保养人' : 'Technician'}</th>
                 <th>{language === 'zh' ? '审核状态' : 'Review Status'}</th>
                 <th>{t('actions')}</th>
@@ -1038,11 +1038,11 @@ export default function Reports({ currentUser }) {
                       <td style={{ fontWeight: 600, color: '#334155' }}>{formatDate(group.date)}</td>
                       <td><span style={{ background: '#f1f5f9', color: '#1e3a8a', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Line {group.line}</span></td>
                       <td>
-                        {group.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
-                        {group.period === 'First Month' && t('maint_period_m1')}
-                        {group.period === 'Second Month' && t('maint_period_m2')}
-                        {group.period === 'Third Month' && t('maint_period_m3')}
-                        {group.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
+                        {group.period === 'Weekly' && (language === 'zh' ? '每周保养 (Weekly)' : 'Weekly Maintenance')}
+                        {group.period === 'First Month' && (language === 'zh' ? '每月保养 (M1 第一月)' : 'Monthly (Month 1)')}
+                        {group.period === 'Second Month' && (language === 'zh' ? '每月保养 (M2 第二月)' : 'Monthly (Month 2)')}
+                        {group.period === 'Third Month' && (language === 'zh' ? '每月保养 (M3 季度)' : 'Monthly (Month 3 - Quarterly)')}
+                        {group.period === 'Yearly' && (language === 'zh' ? '每年保养 (Yearly)' : 'Yearly Maintenance')}
                       </td>
                       <td style={{ fontSize: '0.85rem', color: '#475569' }}>{group.submitted_by || '—'}</td>
                       <td>
