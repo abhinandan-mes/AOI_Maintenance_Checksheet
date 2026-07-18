@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import './ImageUpload.css';
 import { useLanguage } from '../contexts/LanguageContext';
+import imageCompression from 'browser-image-compression';
 
 export default function ImageUpload({ images, setImages, readOnly = false }) {
   const { language } = useLanguage();
@@ -8,13 +9,34 @@ export default function ImageUpload({ images, setImages, readOnly = false }) {
   const [isDragging, setIsDragging] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
-  const handleFiles = (files) => {
+  const handleFiles = async (files) => {
     const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-    const newImages = validFiles.map(file => ({
-      file,
-      preview: URL.createObjectURL(file)
-    }));
-    setImages(prev => [...prev, ...newImages]);
+    
+    const options = {
+      maxSizeMB: 1, // Compress to max 1MB
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    };
+
+    const compressedImages = [];
+    for (const file of validFiles) {
+      try {
+        const compressedFile = await imageCompression(file, options);
+        compressedImages.push({
+          file: compressedFile,
+          preview: URL.createObjectURL(compressedFile)
+        });
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        // Fallback to original if compression fails
+        compressedImages.push({
+          file,
+          preview: URL.createObjectURL(file)
+        });
+      }
+    }
+    
+    setImages(prev => [...prev, ...compressedImages]);
   };
 
   const onDragOver = (e) => {
