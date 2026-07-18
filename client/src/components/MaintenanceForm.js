@@ -113,6 +113,15 @@ export default function MaintenanceForm({ currentUser }) {
   });
 
   const [activeTab, setActiveTab] = useState(0);
+  const [visitedTabs, setVisitedTabs] = useState([0]);
+
+  const handleTabChange = (idx) => {
+    setVisitedTabs(prev => {
+      if (!prev.includes(idx)) return [...prev, idx];
+      return prev;
+    });
+    setActiveTab(idx);
+  };
 
   // ── Original loaded record (to display signature trails in review) ────────
   const [fullRecord, setFullRecord] = useState(null);
@@ -438,9 +447,9 @@ export default function MaintenanceForm({ currentUser }) {
       setMessage(`⚠️ ${language === 'zh' ? '无法提交' : 'Cannot submit'}: ${validationErrors.join(' | ')}`);
       
       if (missingMachines.length > 0) {
-        setActiveTab(MACHINE_CONFIG.findIndex(m => m.key === missingMachines[0].key));
+        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingMachines[0].key));
       } else if (missingImages.length > 0) {
-        setActiveTab(MACHINE_CONFIG.findIndex(m => m.key === missingImages[0].key));
+        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingImages[0].key));
       }
       
       return;
@@ -574,7 +583,7 @@ export default function MaintenanceForm({ currentUser }) {
         return !d.machine_type.trim() || !d.machine_name.trim() || !d.machine_asset_no.trim();
       });
       if (firstErrorMachineIndex !== -1) {
-        setActiveTab(firstErrorMachineIndex);
+        handleTabChange(firstErrorMachineIndex);
       }
 
       if (anyUnchecked && !common.remarks.trim()) {
@@ -1038,25 +1047,47 @@ export default function MaintenanceForm({ currentUser }) {
             <div className="machine-tabs-wrapper" style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '4px' }}>
               {MACHINE_CONFIG.map((mc, idx) => {
                 const isActive = activeTab === idx;
+                const isVisited = visitedTabs.includes(idx);
                 const data = machines[mc.key];
                 const isMachineIncomplete = !isReadOnly && (
                   !data.machine_type.trim() || 
                   !data.machine_name.trim() || 
                   !data.machine_asset_no.trim() || 
-                  (!data.image_paths?.length && !isReadOnly)
+                  (!data.image_paths?.length && !isReadOnly) ||
+                  (hasUnchecked(data, mc.key) && !common.remarks.trim())
                 );
                 
+                let borderColor = '#cbd5e1';
+                let bgColor = '#f8fafc';
+                let textColor = '#64748b';
+
+                if (isActive) {
+                  borderColor = isMachineIncomplete ? '#dc2626' : mc.color;
+                  bgColor = isMachineIncomplete ? '#fef2f2' : `${mc.color}10`;
+                  textColor = isMachineIncomplete ? '#dc2626' : mc.color;
+                } else if (isVisited) {
+                  if (isMachineIncomplete) {
+                    borderColor = '#dc2626';
+                    bgColor = '#fef2f2';
+                    textColor = '#dc2626';
+                  } else {
+                    borderColor = '#16a34a';
+                    bgColor = '#f0fdf4';
+                    textColor = '#16a34a';
+                  }
+                }
+
                 return (
                   <button
                     key={`tab-${mc.key}`}
                     type="button"
-                    onClick={() => setActiveTab(idx)}
+                    onClick={() => handleTabChange(idx)}
                     style={{
                       padding: '10px 20px',
                       borderRadius: '30px',
-                      border: isActive ? `2px solid ${mc.color}` : '1px solid #cbd5e1',
-                      background: isActive ? `${mc.color}10` : '#f8fafc',
-                      color: isActive ? mc.color : '#64748b',
+                      border: isActive ? `2px solid ${borderColor}` : `1px solid ${borderColor}`,
+                      background: bgColor,
+                      color: textColor,
                       fontWeight: isActive ? '700' : '500',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
@@ -1067,7 +1098,7 @@ export default function MaintenanceForm({ currentUser }) {
                     }}
                   >
                     <span>{mc.label}</span>
-                    {isMachineIncomplete && <span style={{ color: '#dc2626', fontSize: '1.2rem', lineHeight: 1 }} title="Missing required info">•</span>}
+                    {isMachineIncomplete && isVisited && <span style={{ color: '#dc2626', fontSize: '1.2rem', lineHeight: 1 }} title="Missing required info">•</span>}
                   </button>
                 );
               })}
@@ -1176,7 +1207,7 @@ export default function MaintenanceForm({ currentUser }) {
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                       <button 
                         type="button" 
-                        onClick={() => { setActiveTab(idx - 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
+                        onClick={() => { handleTabChange(idx - 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
                         disabled={idx === 0}
                         style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: idx === 0 ? '#cbd5e1' : '#334155', cursor: idx === 0 ? 'not-allowed' : 'pointer' }}
                       >
@@ -1184,7 +1215,7 @@ export default function MaintenanceForm({ currentUser }) {
                       </button>
                       <button 
                         type="button" 
-                        onClick={() => { setActiveTab(idx + 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
+                        onClick={() => { handleTabChange(idx + 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
                         disabled={idx === MACHINE_CONFIG.length - 1}
                         style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid transparent', background: idx === MACHINE_CONFIG.length - 1 ? '#e2e8f0' : mc.color, color: idx === MACHINE_CONFIG.length - 1 ? '#94a3b8' : '#fff', cursor: idx === MACHINE_CONFIG.length - 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
                       >
