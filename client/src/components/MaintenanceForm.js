@@ -355,7 +355,7 @@ export default function MaintenanceForm({ currentUser }) {
     ];
   };
 
-  const isThirdMonth   = common.period === 'Third Month' || common.period === 'Yearly';
+  const isThirdMonth   = common.period === 'Third Month';
   const isMachineFilled = (machineData, eqType) => {
     const isLaser = eqType === 'LASER';
     const checks = [...getMonthlyChecks(eqType), ...(isThirdMonth ? getQuarterlyChecks(eqType) : [])];
