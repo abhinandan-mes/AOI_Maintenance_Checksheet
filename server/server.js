@@ -9,6 +9,7 @@ const initializeDatabase = require('./config/schema');
 const authRoutes = require('./routes/auth');
 const maintenanceRecordRoutes = require('./routes/maintenanceRecord');
 const { authenticateToken } = require('./middleware/auth');
+const startCleanupJob = require('./jobs/cleanup');
 
 const app = express();
 const PORT = process.env.PORT || 5010;
@@ -47,6 +48,10 @@ app.get('/api/health', (req, res) => {
 
 async function startServer() {
   await initializeDatabase();
+  
+  // Start background jobs
+  startCleanupJob();
+
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
