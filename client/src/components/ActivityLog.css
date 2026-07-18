@@ -222,13 +222,15 @@
 }
 
 .filters-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: 1rem;
 }
 
 .filter-item {
+  flex: 1;
+  min-width: 150px;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -278,6 +280,7 @@
 
 .filter-actions-row {
   display: flex;
+  flex: 0 0 auto;
   gap: 0.5rem;
   min-height: 42px;
 }
