@@ -1098,9 +1098,9 @@ export default function MaintenanceForm({ currentUser }) {
                 let textColor = '#64748b';
 
                 if (isActive) {
-                  borderColor = mc.color;
-                  bgColor = `${mc.color}10`;
-                  textColor = mc.color;
+                  borderColor = '#415fff';
+                  bgColor = '#415fff10';
+                  textColor = '#415fff';
                 } else if (isVisited) {
                   if (isMachineIncomplete) {
                     borderColor = '#dc2626';
