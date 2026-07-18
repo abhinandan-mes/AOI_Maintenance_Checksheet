@@ -12,6 +12,23 @@ const getClientIp = (req) => {
 const maintenanceRecordController = {
   createRecord: async (req, res) => {
     try {
+      if (req.body.period === 'Yearly') {
+        const tenMonthsAgo = new Date();
+        tenMonthsAgo.setMonth(tenMonthsAgo.getMonth() - 10);
+        const existingYearly = await prisma.aoiSpiMaintenanceRecord.findFirst({
+          where: {
+            line: req.body.line,
+            period: 'Yearly',
+            date: { gte: tenMonthsAgo },
+            status: { not: 'DISAPPROVED' },
+            created_at: { lt: new Date(Date.now() - 5 * 60000) } // allow same-session inserts
+          }
+        });
+        if (existingYearly) {
+          return res.status(400).json({ success: false, error: 'A Yearly maintenance record was already submitted for this line within the last 10 months.' });
+        }
+      }
+
       req.body.submitted_ip = getClientIp(req);
       const record = await maintenanceRecordModel.create(req.body);
       res.status(201).json({ success: true, data: record });

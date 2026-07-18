@@ -176,9 +176,11 @@ export default function ReportFilters({
             }}
           >
             <option value="">{language === 'zh' ? '全部周期' : 'All periods'}</option>
+            <option value="Weekly">{language === 'zh' ? '每周保养' : 'Weekly'}</option>
             <option value="First Month">{t('maint_period_m1')}</option>
             <option value="Second Month">{t('maint_period_m2')}</option>
             <option value="Third Month">{t('maint_period_m3')}</option>
+            <option value="Yearly">{language === 'zh' ? '每年保养' : 'Yearly'}</option>
           </select>
         </div>
 

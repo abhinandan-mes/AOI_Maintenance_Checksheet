@@ -7,7 +7,7 @@ export default function ReportChecklistTable({
   activeTab
 }) {
   const primaryRecord = records[0] || {};
-  const isThirdMonth = primaryRecord.period === 'Third Month';
+  const isThirdMonth = primaryRecord.period === 'Third Month' || primaryRecord.period === 'Yearly';
 
   const laserRec = records.find(r => r.equipment_type === 'LASER' || r.equipment_type === 'Laser') || null;
   const spiRec = records.find(r => r.equipment_type === 'SPI') || null;

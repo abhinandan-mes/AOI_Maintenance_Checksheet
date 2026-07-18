@@ -36,7 +36,7 @@ export default function ConfirmModal({
           background: '#ffffff',
           borderRadius: '16px',
           width: '95%',
-          maxWidth: '400px',
+          maxWidth: '500px',
           padding: '24px 28px',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           border: '1px solid rgba(226, 232, 240, 0.8)',
@@ -64,7 +64,7 @@ export default function ConfirmModal({
             <h3 style={{ fontSize: '1.1rem', color: '#0f172a', fontWeight: 800, margin: '0 0 6px 0' }}>
               {title}
             </h3>
-            <p style={{ color: '#475569', fontSize: '0.88rem', lineHeight: 1.4, margin: 0 }}>
+            <p style={{ color: '#475569', fontSize: '0.88rem', lineHeight: 1.4, margin: 0, whiteSpace: 'pre-wrap' }}>
               {message}
             </p>
           </div>

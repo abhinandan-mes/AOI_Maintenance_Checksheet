@@ -87,11 +87,12 @@ export default function MaintenanceForm({ currentUser }) {
   // ── Selection state ───────────────────────────────────────────────────────
   const [selectedLine, setSelectedLine] = useState('');
   const [formStarted, setFormStarted] = useState(isEditMode);
+  const [maintenanceType, setMaintenanceType] = useState(''); // '' | 'Weekly' | 'Monthly' | 'Yearly'
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [common, setCommon] = useState({
     line: '',
-    period: 'First Month',
+    period: '',
     date: new Date().toISOString().split('T')[0],
     submitted_by: '',
     designated_engineer_id: '',
@@ -110,6 +111,53 @@ export default function MaintenanceForm({ currentUser }) {
     PRE_AOI:  blankMachine(),
     POST_AOI: blankMachine(),
   });
+
+  const [activeTab, setActiveTab] = useState(0);
+  const [visitedTabs, setVisitedTabs] = useState([0]);
+
+  const handleTabChange = (idx) => {
+    if (idx !== activeTab && !isReadOnly) {
+      const mc = MACHINE_CONFIG[activeTab];
+      const data = machines[mc.key];
+      const missing = [];
+      if (!data.machine_type.trim()) missing.push(language === 'zh' ? '设备型号' : 'Machine Type');
+      if (!data.machine_name.trim()) missing.push(language === 'zh' ? '设备名称' : 'Machine Name');
+      if (!data.machine_asset_no.trim()) missing.push(language === 'zh' ? '资产编号' : 'Asset No');
+      if (!data.image_paths?.length) missing.push(language === 'zh' ? '设备状态照片 (必填)' : 'Equipment Photo (Mandatory)');
+      if (hasUnchecked(data, mc.key) && !common.remarks.trim()) {
+        missing.push(language === 'zh' ? '有未勾选项，必须填写备注' : 'Remarks required for unchecked items');
+      }
+
+      if (missing.length > 0) {
+        setConfirmConfig({
+          isOpen: true,
+          title: language === 'zh' ? `[${mc.label}] 信息不完整` : `[${mc.label}] Incomplete Data`,
+          message: language === 'zh' 
+            ? `您当前在 [${mc.label}] Checksheet 中缺少以下项目：\n\n• ${missing.join('\n• ')}\n\n是否仍要继续前往下一个 Checksheet？`
+            : `You are missing the following in the [${mc.label}] Checksheet:\n\n• ${missing.join('\n• ')}\n\nDo you want to proceed to the next Checksheet anyway?`,
+          confirmText: language === 'zh' ? '稍后再填 (继续)' : 'Do it later (Proceed)',
+          cancelText: language === 'zh' ? '留在本页 (继续填写)' : 'Stay here (Complete now)',
+          showCancel: true,
+          isDanger: true,
+          onConfirm: () => {
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+            setVisitedTabs(prev => {
+              if (!prev.includes(idx)) return [...prev, idx];
+              return prev;
+            });
+            setActiveTab(idx);
+          }
+        });
+        return; // Wait for user choice
+      }
+    }
+
+    setVisitedTabs(prev => {
+      if (!prev.includes(idx)) return [...prev, idx];
+      return prev;
+    });
+    setActiveTab(idx);
+  };
 
   // ── Original loaded record (to display signature trails in review) ────────
   const [fullRecord, setFullRecord] = useState(null);
@@ -193,10 +241,11 @@ export default function MaintenanceForm({ currentUser }) {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        if (parsed.formStarted) {
+        if (parsed.formStarted !== undefined) {
           setFormStarted(parsed.formStarted);
-          setSelectedLine(parsed.selectedLine);
+          if (parsed.selectedLine) setSelectedLine(parsed.selectedLine);
           if (parsed.common) setCommon(parsed.common);
+          if (parsed.maintenanceType) setMaintenanceType(parsed.maintenanceType);
           if (parsed.machines) {
             // Restore machines but ensure image_paths is array (cannot restore File objects)
             const restoredMachines = {};
@@ -219,9 +268,9 @@ export default function MaintenanceForm({ currentUser }) {
     for (const key in machines) {
       machinesToSave[key] = { ...machines[key], image_paths: [] };
     }
-    const draft = { formStarted, selectedLine, common, machines: machinesToSave };
+    const draft = { formStarted, selectedLine, common, machines: machinesToSave, maintenanceType };
     sessionStorage.setItem('maintenanceDraft', JSON.stringify(draft));
-  }, [isEditMode, formStarted, selectedLine, common, machines]);
+  }, [isEditMode, formStarted, selectedLine, common, machines, maintenanceType]);
 
   // Load record and matching 3-in-1 group in edit/review mode
   useEffect(() => {
@@ -243,6 +292,9 @@ export default function MaintenanceForm({ currentUser }) {
             confirmation: false,
             remarks: r.remarks || '',
           });
+          if (r.period === 'Weekly') setMaintenanceType('Weekly');
+          else if (r.period === 'Yearly') setMaintenanceType('Yearly');
+          else setMaintenanceType('Monthly');
 
           // Fetch all records to compile the matching 3-in-1 group
           const allRes = await apiService.getAllMaintenanceRecords();
@@ -350,10 +402,14 @@ export default function MaintenanceForm({ currentUser }) {
     ];
   };
 
-  const isThirdMonth   = common.period === 'Third Month';
+  const isThirdMonth   = common.period === 'Third Month' || common.period === 'Yearly';
+  const isMachineFilled = (machineData, eqType) => {
+    const isLaser = eqType === 'LASER';
+    const checks = [...getMonthlyChecks(eqType), ...(isThirdMonth ? getQuarterlyChecks(eqType) : [])];
+    return checks.every(c => machineData[c.key] === true);
+  };
   
   const getTotalChecks = (machineKey) => {
-    const isThirdMonth = common.period === 'Third Month';
     if (machineKey === 'LASER') {
       return isThirdMonth ? 14 : 10;
     }
@@ -425,6 +481,13 @@ export default function MaintenanceForm({ currentUser }) {
 
     if (validationErrors.length > 0) {
       setMessage(`⚠️ ${language === 'zh' ? '无法提交' : 'Cannot submit'}: ${validationErrors.join(' | ')}`);
+      
+      if (missingMachines.length > 0) {
+        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingMachines[0].key));
+      } else if (missingImages.length > 0) {
+        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingImages[0].key));
+      }
+      
       return;
     }
     
@@ -550,6 +613,15 @@ export default function MaintenanceForm({ currentUser }) {
           errors.push(`[${m.label}] ${mErrors.join(', ')}`);
         }
       });
+      
+      const firstErrorMachineIndex = MACHINE_CONFIG.findIndex(m => {
+        const d = machines[m.key];
+        return !d.machine_type.trim() || !d.machine_name.trim() || !d.machine_asset_no.trim();
+      });
+      if (firstErrorMachineIndex !== -1) {
+        handleTabChange(firstErrorMachineIndex);
+      }
+
       if (anyUnchecked && !common.remarks.trim()) {
         errors.push(language === 'zh' ? '未勾选检查项需要填写整体备注' : 'Unchecked checklist items require overall remarks');
       }
@@ -625,7 +697,10 @@ export default function MaintenanceForm({ currentUser }) {
           <div className="cthead-status">{language === 'zh' ? '状态' : 'Status'}</div>
         </div>
 
-        {getMonthlyChecks(mc.key).map((c, idx) => (
+        {(maintenanceType === 'Yearly' 
+          ? [...getMonthlyChecks(mc.key), ...getQuarterlyChecks(mc.key)] 
+          : getMonthlyChecks(mc.key)
+        ).map((c, idx) => (
           <div
             key={c.key}
             className={`check-row ${data[c.key] ? 'check-row--done' : ''}`}
@@ -635,7 +710,9 @@ export default function MaintenanceForm({ currentUser }) {
             <div className="check-row-cycle">
               {idx === 0 && (
                 <span className="cycle-badge" style={{ color: mc.color }}>
-                  {language === 'zh' ? '月度' : 'Monthly'}
+                  {language === 'zh' 
+                    ? (maintenanceType === 'Weekly' ? '每周' : (maintenanceType === 'Yearly' ? '年度' : '月度'))
+                    : (maintenanceType === 'Weekly' ? 'Weekly' : (maintenanceType === 'Yearly' ? 'Yearly' : 'Monthly'))}
                 </span>
               )}
             </div>
@@ -658,7 +735,7 @@ export default function MaintenanceForm({ currentUser }) {
         ))}
       </div>
 
-      {isThirdMonth && (
+      {(isThirdMonth && maintenanceType !== 'Yearly') && (
         <div className="check-table check-table-3col check-table--quarterly">
           {getQuarterlyChecks(mc.key).map((c, idx) => (
             <div
@@ -670,7 +747,9 @@ export default function MaintenanceForm({ currentUser }) {
               <div className="check-row-cycle">
                 {idx === 0 && (
                   <span className="cycle-badge cycle-badge--quarterly" style={{ color: '#6d28d9' }}>
-                    {language === 'zh' ? '季度' : 'Quarterly'}
+                    {language === 'zh' 
+                      ? (maintenanceType === 'Yearly' ? '年度' : '季度') 
+                      : (maintenanceType === 'Yearly' ? 'Yearly' : 'Quarterly')}
                   </span>
                 )}
               </div>
@@ -781,6 +860,55 @@ export default function MaintenanceForm({ currentUser }) {
               ))}
             </div>
 
+            {selectedLine && (
+              <div style={{ marginTop: '28px', paddingTop: '28px', borderTop: '1px dashed #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <h3 style={{ fontSize: '1rem', color: '#334155', margin: 0, fontWeight: 700 }}>
+                  {language === 'zh' ? '选择保养类型' : 'Select Maintenance Type'}
+                </h3>
+                <div className="period-switcher">
+                  {['Weekly', 'Monthly', 'Yearly'].map((t, i) => (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`period-tab ${maintenanceType === t ? 'active' : ''}`}
+                      onClick={() => {
+                        setMaintenanceType(t);
+                        if (t === 'Weekly') setCommon(prev => ({ ...prev, period: 'Weekly' }));
+                        else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: '' }));
+                        else if (t === 'Yearly') setCommon(prev => ({ ...prev, period: 'Yearly' }));
+                      }}
+                    >
+                      {language === 'zh'
+                        ? ['每周保养', '每月保养', '每年保养'][i]
+                        : ['Weekly', 'Monthly', 'Yearly'][i]}
+                    </button>
+                  ))}
+                </div>
+                
+                {maintenanceType === 'Monthly' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
+                    <h3 style={{ fontSize: '0.95rem', color: '#475569', margin: 0, fontWeight: 600 }}>
+                      {language === 'zh' ? '选择保养月份' : 'Select Maintenance Month'}
+                    </h3>
+                    <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-4px' }}>
+                      {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
+                        <button
+                          key={p}
+                          type="button"
+                          className={`period-tab ${common.period === p ? 'active' : ''}`}
+                          onClick={() => setCommon(prev => ({ ...prev, period: p }))}
+                        >
+                          {language === 'zh'
+                            ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
+                            : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="sel-cta-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', marginTop: '30px', paddingTop: '24px', borderTop: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
               {selectedLine ? (
                 <div className="sel-chosen-badge" style={{ background: 'rgba(65, 95, 255, 0.08)', color: '#415fff', border: '1px solid rgba(65, 95, 255, 0.2)', padding: '8px 20px', borderRadius: '100px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
@@ -795,8 +923,18 @@ export default function MaintenanceForm({ currentUser }) {
               <button
                 type="button"
                 className={`sel-start-btn ${!selectedLine ? 'sel-start-btn--disabled' : ''}`}
-                disabled={!selectedLine}
                 onClick={() => {
+                  if (!selectedLine) return; // Normally disabled if no line selected, but just in case
+                  
+                  if (!maintenanceType) {
+                    showAlert(language === 'zh' ? '缺少保养类型' : 'Missing Maintenance Type', language === 'zh' ? '请选择一个保养类型（每周、每月或每年）。' : 'Please select a Maintenance Type (Weekly, Monthly, or Yearly).');
+                    return;
+                  }
+                  if (maintenanceType === 'Monthly' && !common.period) {
+                    showAlert(language === 'zh' ? '缺少月份' : 'Missing Month', language === 'zh' ? '请选择一个月度 (M1, M2 或 M3)。' : 'Please select a month (Month 1, Month 2, or Month 3).');
+                    return;
+                  }
+                  
                   setCommon(prev => ({ ...prev, line: selectedLine }));
                   setFormStarted(true);
                 }}
@@ -863,7 +1001,13 @@ export default function MaintenanceForm({ currentUser }) {
             </button>
           ) : (
             <button type="button" className="topbar-back-btn"
-              onClick={() => { setFormStarted(false); setSelectedLine(''); setCommon(prev => ({ ...prev, line: '' })); }}>
+              onClick={() => { 
+                setFormStarted(false); 
+                setSelectedLine(''); 
+                setMaintenanceType('');
+                setCommon(prev => ({ ...prev, line: '', period: '' })); 
+                sessionStorage.removeItem('maintenanceDraft');
+              }}>
               ← {language === 'zh' ? '换产线' : 'Change Line'}
             </button>
           )}
@@ -884,28 +1028,13 @@ export default function MaintenanceForm({ currentUser }) {
         </div>
 
         <div className="topbar-center">
-          {isEditMode ? (
-            <div className="topbar-period-display" style={{ fontWeight: 700, color: '#1e3a8a', background: '#eff6ff', padding: '6px 16px', borderRadius: '8px', fontSize: '0.88rem' }}>
-              ⏳ {common.period === 'First Month' && t('maint_period_m1')}
-              {common.period === 'Second Month' && t('maint_period_m2')}
-              {common.period === 'Third Month' && t('maint_period_m3')}
-            </div>
-          ) : (
-            <div className="period-switcher">
-              {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
-                <button
-                  key={p}
-                  type="button"
-                  className={`period-tab ${common.period === p ? 'active' : ''}`}
-                  onClick={() => setCommon(prev => ({ ...prev, period: p }))}
-                >
-                  {language === 'zh'
-                    ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
-                    : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="topbar-period-display" style={{ fontWeight: 700, color: '#1e3a8a', background: '#eff6ff', padding: '6px 16px', borderRadius: '8px', fontSize: '0.88rem' }}>
+            ⏳ {common.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
+            {common.period === 'First Month' && t('maint_period_m1')}
+            {common.period === 'Second Month' && t('maint_period_m2')}
+            {common.period === 'Third Month' && t('maint_period_m3')}
+            {common.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
+          </div>
         </div>
 
         <div className="topbar-right">
@@ -950,13 +1079,76 @@ export default function MaintenanceForm({ currentUser }) {
 
         <form onSubmit={handleSubmitAll}>
           <fieldset disabled={isReadOnly} style={{ border: 'none', padding: 0, margin: 0 }}>
+            {/* ── Machine Tabs ── */}
+            <div className="machine-tabs-wrapper" style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {MACHINE_CONFIG.map((mc, idx) => {
+                const isActive = activeTab === idx;
+                const isVisited = visitedTabs.includes(idx);
+                const data = machines[mc.key];
+                const isMachineIncomplete = !isReadOnly && (
+                  !data.machine_type.trim() || 
+                  !data.machine_name.trim() || 
+                  !data.machine_asset_no.trim() || 
+                  (!data.image_paths?.length && !isReadOnly) ||
+                  (hasUnchecked(data, mc.key) && !common.remarks.trim())
+                );
+                
+                let borderColor = '#cbd5e1';
+                let bgColor = '#f8fafc';
+                let textColor = '#64748b';
 
-            {MACHINE_CONFIG.map((mc) => {
+                if (isActive) {
+                  borderColor = '#415fff';
+                  bgColor = '#415fff10';
+                  textColor = '#415fff';
+                } else if (isVisited) {
+                  if (isMachineIncomplete) {
+                    borderColor = '#dc2626';
+                    bgColor = '#fef2f2';
+                    textColor = '#dc2626';
+                  } else {
+                    borderColor = '#16a34a';
+                    bgColor = '#f0fdf4';
+                    textColor = '#16a34a';
+                  }
+                }
+
+                return (
+                  <button
+                    key={`tab-${mc.key}`}
+                    type="button"
+                    onClick={() => handleTabChange(idx)}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '30px',
+                      border: isActive ? `2px solid ${borderColor}` : `1px solid ${borderColor}`,
+                      background: bgColor,
+                      color: textColor,
+                      fontWeight: isActive ? '700' : '500',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <span>{mc.label}</span>
+                    {isMachineIncomplete && isVisited && !isActive && <span style={{ fontSize: '1rem', lineHeight: 1 }} title="Missing required info">⚠️</span>}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* ── Per-Machine Layout (Tabbed) ── */}
+            {MACHINE_CONFIG.map((mc, idx) => {
+              if (idx !== activeTab) return null;
               const data    = machines[mc.key];
               const done    = countChecked(data, mc.key);
               const full    = done === getTotalChecks(mc.key);
               const valid   = isMachineValid(mc.key);
               const uncked  = hasUnchecked(data, mc.key);
+              const isDisapproved = fullRecord && fullRecord.status === 'DISAPPROVED' && data.rejection_reason;
 
               return (
                 <div
@@ -1046,6 +1238,26 @@ export default function MaintenanceForm({ currentUser }) {
                         <strong>⚠️ {language === 'zh' ? '退回修改原因' : 'Rejection Reason'}:</strong> {data.rejection_reason}
                       </div>
                     )}
+
+                    {/* Pagination / Navigation Buttons */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                      <button 
+                        type="button" 
+                        onClick={() => { handleTabChange(idx - 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
+                        disabled={idx === 0}
+                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: idx === 0 ? '#cbd5e1' : '#334155', cursor: idx === 0 ? 'not-allowed' : 'pointer' }}
+                      >
+                        ← {language === 'zh' ? '上一台设备' : 'Previous Machine'}
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => { handleTabChange(idx + 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
+                        disabled={idx === MACHINE_CONFIG.length - 1}
+                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid transparent', background: idx === MACHINE_CONFIG.length - 1 ? '#e2e8f0' : mc.color, color: idx === MACHINE_CONFIG.length - 1 ? '#94a3b8' : '#fff', cursor: idx === MACHINE_CONFIG.length - 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                      >
+                        {language === 'zh' ? '下一台设备' : 'Next Machine'} →
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
