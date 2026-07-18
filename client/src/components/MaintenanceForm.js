@@ -1062,9 +1062,9 @@ export default function MaintenanceForm({ currentUser }) {
                 let textColor = '#64748b';
 
                 if (isActive) {
-                  borderColor = isMachineIncomplete ? '#dc2626' : mc.color;
-                  bgColor = isMachineIncomplete ? '#fef2f2' : `${mc.color}10`;
-                  textColor = isMachineIncomplete ? '#dc2626' : mc.color;
+                  borderColor = mc.color;
+                  bgColor = `${mc.color}10`;
+                  textColor = mc.color;
                 } else if (isVisited) {
                   if (isMachineIncomplete) {
                     borderColor = '#dc2626';
@@ -1098,7 +1098,7 @@ export default function MaintenanceForm({ currentUser }) {
                     }}
                   >
                     <span>{mc.label}</span>
-                    {isMachineIncomplete && isVisited && <span style={{ color: '#dc2626', fontSize: '1.2rem', lineHeight: 1 }} title="Missing required info">•</span>}
+                    {isMachineIncomplete && isVisited && !isActive && <span style={{ fontSize: '1rem', lineHeight: 1 }} title="Missing required info">⚠️</span>}
                   </button>
                 );
               })}
