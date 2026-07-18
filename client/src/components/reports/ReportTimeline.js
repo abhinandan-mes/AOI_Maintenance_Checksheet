@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ReportTimeline({ row = {}, language = 'en' }) {
+export default function ReportTimeline({ row = {}, language = 'en', currentUser = {} }) {
   const formatDateTime = (dateStr) => {
     if (!dateStr) return '';
     return new Date(dateStr).toLocaleString(language === 'zh' ? 'zh-CN' : undefined, {
@@ -12,6 +12,8 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
       second: '2-digit'
     });
   };
+
+  const canViewIP = currentUser?.role === 'admin' || currentUser?.role === 'super_admin' || currentUser?.role === 'manager';
 
   const steps = [];
 
@@ -39,6 +41,7 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
     titleZh: engDisapproved ? '工程师审核不合格退回' : '工程师审核签字',
     done: engDone || engDisapproved,
     isRejected: engDisapproved,
+    isPendingActive: isEngPending,
     user: row.engineer_reviewed_by || (isEngPending && row.designated_engineer_id ? `Designated: ${row.designated_engineer_id}` : (engDisapproved ? 'Engineer' : null)),
     time: row.eng_reviewed_at ? formatDateTime(row.eng_reviewed_at) : null,
     ip: row.eng_reviewed_ip || '—',
@@ -56,6 +59,7 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
     titleZh: mgrDisapproved ? '经理审核不合格退回' : '经理终审签字归档',
     done: mgrDone || mgrDisapproved,
     isRejected: mgrDisapproved,
+    isPendingActive: isMgrPending,
     user: row.manager_reviewed_by || (isMgrPending && row.designated_manager_id ? `Designated: ${row.designated_manager_id}` : (mgrDisapproved ? 'Manager' : null)),
     time: row.mgr_approved_at ? formatDateTime(row.mgr_approved_at) : null,
     ip: row.mgr_approved_ip || '—',
@@ -108,8 +112,11 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
 
             {/* Right step details */}
             <div style={{
-              background: '#f8fafc',
-              border: `1px solid ${step.isRejected ? '#fca5a5' : '#e2e8f0'}`,
+              background: step.isPendingActive ? '#ffffff' : '#f8fafc',
+              border: `1px solid ${step.isRejected ? '#fca5a5' : (step.isPendingActive ? step.color : '#e2e8f0')}`,
+              boxShadow: step.isPendingActive ? `0 4px 12px ${step.color}20` : 'none',
+              transform: step.isPendingActive ? 'scale(1.02)' : 'none',
+              transition: 'all 0.3s ease',
               borderRadius: '8px',
               padding: '10px 14px',
               flex: 1
@@ -138,10 +145,10 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
                 )}
               </div>
 
-              {isActive ? (
+              {isActive || step.isPendingActive ? (
                 <div style={{
                   fontSize: '0.8rem',
-                  color: '#475569',
+                  color: step.isPendingActive ? step.color : '#475569',
                   marginTop: '6px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -152,9 +159,16 @@ export default function ReportTimeline({ row = {}, language = 'en' }) {
                       👤 <strong>{language === 'zh' ? '经办人员' : 'User'}:</strong> {step.user}
                     </span>
                   )}
-                  <span>
-                    🌐 <strong>IP Address:</strong> <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{step.ip}</span>
-                  </span>
+                  {isActive && canViewIP && (
+                    <span>
+                      🌐 <strong>IP Address:</strong> <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{step.ip}</span>
+                    </span>
+                  )}
+                  {step.isPendingActive && (
+                    <span style={{ fontStyle: 'italic', marginTop: '4px' }}>
+                      ⏳ {language === 'zh' ? '当前步骤：等待审核中...' : 'Current Step: Waiting for review...'}
+                    </span>
+                  )}
                 </div>
               ) : (
                 <div style={{

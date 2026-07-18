@@ -46,3 +46,6 @@
 ## CSS Architecture
 * **Strict Vanilla CSS**: This project relies strictly on pure Vanilla CSS. Tailwind CSS utility classes are NOT compiled and will fail to render if used. All premium UI components must be implemented using custom `.css` classes.
 
+## Version Control & Workflow
+* **Branching Rule**: ALWAYS create a new git branch before making any code modifications instead of committing directly to the main branch.
+

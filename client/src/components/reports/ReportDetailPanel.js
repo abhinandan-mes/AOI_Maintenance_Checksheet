@@ -81,8 +81,9 @@ export default function ReportDetailPanel({
             {/* Color Accent line on the left */}
             <div className="premium-machine-accent" style={{ backgroundColor: color }}></div>
             
-            <div className="premium-machine-main">
-              <div className="premium-machine-header">
+            <div className="premium-machine-main" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+              <div className="premium-machine-info-col">
+                <div className="premium-machine-header">
                 <h4 style={{ color: color }}>
                   {activeTab}
                 </h4>
@@ -118,29 +119,48 @@ export default function ReportDetailPanel({
                   </div>
                 </div>
               )}
-            </div>
 
-            <div className="premium-machine-remarks-wrapper">
-              <div className="premium-machine-remarks">
-                <strong className="remarks-title">
-                  <span className="remarks-icon">💬</span> {language === 'zh' ? '保养备注' : 'Remarks'}
-                </strong>
-                <p className={`remarks-content ${rec.remarks ? '' : 'placeholder'}`}>
-                  {rec.remarks || (language === 'zh' ? '本次保养未提交任何备注。' : 'No remarks were submitted for this maintenance check.')}
-                </p>
+              {/* Remarks & Images in the left column */}
+              <div className="premium-machine-footer" style={{ marginTop: '20px', borderTop: 'none', padding: 0 }}>
+                {rec.remarks && (
+                  <div className="premium-machine-remarks-wrapper" style={{ marginBottom: '16px' }}>
+                    <div className="premium-machine-remarks">
+                      <strong className="remarks-title">
+                        <span className="remarks-icon">💬</span> {language === 'zh' ? '保养备注' : 'Remarks'}
+                      </strong>
+                      <p className="remarks-content">
+                        {rec.remarks}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Display Attached Images */}
+                {Array.isArray(rec.image_paths) && rec.image_paths.length > 0 && (
+                  <div className="premium-machine-images-wrapper">
+                    <strong className="remarks-title" style={{ display: 'block', marginBottom: '8px' }}>
+                      <span className="remarks-icon">📸</span> {language === 'zh' ? '附加照片' : 'Attached Photos'}
+                    </strong>
+                    <div className="premium-machine-images">
+                      <ImageUpload 
+                        images={rec.image_paths.map(p => ({ url: `http://localhost:5010${p}` }))} 
+                        setImages={() => {}} 
+                        readOnly={true} 
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Display Attached Images */}
-            {Array.isArray(rec.image_paths) && rec.image_paths.length > 0 && (
-              <div className="premium-machine-images" style={{ padding: '0 24px 24px 24px' }}>
-                <ImageUpload 
-                  images={rec.image_paths.map(p => ({ url: `http://localhost:5010${p}` }))} 
-                  setImages={() => {}} 
-                  readOnly={true} 
-                />
-              </div>
-            )}
+            <div className="premium-machine-timeline-container" style={{ borderLeft: '1px solid #e2e8f0', paddingLeft: '24px' }}>
+              <h4 className="panel-title" style={{ color: '#475569', fontSize: '0.85rem', marginBottom: '12px' }}>
+                ⏳ {language === 'zh' ? '流程签字审核记录轴' : 'Audit Signature Timeline'}
+              </h4>
+              <ReportTimeline row={primaryRecord} language={language} currentUser={currentUser} />
+            </div>
+            
+            </div>
           </div>
         )}
       </div>
@@ -190,10 +210,10 @@ export default function ReportDetailPanel({
             {renderMachineDetails()}
           </div>
 
-          {/* Two-Column Table & Actions Layout */}
-          <div className="details-grid-layout">
-            {/* Left Column: Excel-Style Unified Checklist */}
-            <div className="details-checklist-col panel-container">
+          {/* Full-Width Table Layout */}
+          <div className="details-grid-layout" style={{ display: 'block' }}>
+            {/* Excel-Style Unified Checklist */}
+            <div className="details-checklist-col panel-container" style={{ width: '100%' }}>
               <h4 className="panel-title">
                 📋 {language === 'zh' ? '各设备保养检查执行结果' : 'Checklist Execution Results'}
               </h4>
@@ -207,15 +227,8 @@ export default function ReportDetailPanel({
               />
             </div>
 
-            {/* Right Column: Workflow timeline & Action items */}
-            <div className="details-meta-col" style={{ position: 'sticky', top: '24px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Signature progress timeline */}
-              <div className="panel-container">
-                <h4 className="panel-title">
-                  ⏳ {language === 'zh' ? '流程签字审核记录轴' : 'Audit Signature Timeline'}
-                </h4>
-                <ReportTimeline row={primaryRecord} language={language} />
-              </div>
+            {/* Review Actions Panel */}
+            <div className="details-meta-col mt-6" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
               {/* Review Actions Panel */}
               {((isEngineer || isAdmin) && primaryRecord.status === 'SUBMITTED') && (

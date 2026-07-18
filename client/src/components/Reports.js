@@ -541,15 +541,25 @@ export default function Reports({ currentUser }) {
         currentY += 8;
       }
       
-      const allPaths = [...(laser.image_paths||[]), ...(spi.image_paths||[]), ...(preAoi.image_paths||[]), ...(postAoi.image_paths||[])];
+      const allPaths = [];
+      ['Laser', 'SPI', 'Pre-AOI', 'Post-AOI'].forEach(mName => {
+        const paths = (mName === 'Laser' ? laser.image_paths :
+                       mName === 'SPI' ? spi.image_paths :
+                       mName === 'Pre-AOI' ? preAoi.image_paths :
+                       postAoi.image_paths) || [];
+        paths.forEach((p, idx) => {
+          allPaths.push({ label: `${mName} ${idx + 1}`, path: p });
+        });
+      });
+
       if (allPaths.length > 0) {
         doc.setFontSize(9.5);
         doc.setTextColor(37, 99, 235);
         doc.text(`Attached Images: ${allPaths.length} image(s) available.`, 14, currentY);
         currentY += 6;
-        allPaths.forEach((path, i) => {
-          const url = `http://localhost:5010${path}`;
-          doc.text(`- Image ${i+1}: ${url}`, 18, currentY);
+        allPaths.forEach((imgObj) => {
+          const url = `http://localhost:5010${imgObj.path}`;
+          doc.text(`- ${imgObj.label}: ${url}`, 18, currentY);
           currentY += 5;
         });
         currentY += 3;
@@ -738,12 +748,22 @@ export default function Reports({ currentUser }) {
         htmlContent += `<div style="margin-top: 15px; font-size: 12px; color: #475569;"><strong>Remarks:</strong> ${group.records[0].remarks}</div>`;
       }
       
-      const allPaths = [...(laser.image_paths||[]), ...(spi.image_paths||[]), ...(preAoi.image_paths||[]), ...(postAoi.image_paths||[])];
+      const allPaths = [];
+      ['Laser', 'SPI', 'Pre-AOI', 'Post-AOI'].forEach(mName => {
+        const paths = (mName === 'Laser' ? laser.image_paths :
+                       mName === 'SPI' ? spi.image_paths :
+                       mName === 'Pre-AOI' ? preAoi.image_paths :
+                       postAoi.image_paths) || [];
+        paths.forEach((p, idx) => {
+          allPaths.push({ label: `${mName} ${idx + 1}`, path: p });
+        });
+      });
+
       if (allPaths.length > 0) {
         htmlContent += `<div style="margin-top: 10px; font-size: 12px; color: #2563eb;"><strong>Attached Images:</strong><ul style="margin-top: 4px; padding-left: 20px;">`;
-        allPaths.forEach((path, i) => {
-          const url = `http://localhost:5010${path}`;
-          htmlContent += `<li><a href="${url}" target="_blank">Image ${i+1}</a></li>`;
+        allPaths.forEach((imgObj) => {
+          const url = `http://localhost:5010${imgObj.path}`;
+          htmlContent += `<li><a href="${url}" target="_blank">${imgObj.label}</a></li>`;
         });
         htmlContent += `</ul></div>`;
       }

@@ -18,7 +18,10 @@ const storage = multer.diskStorage({
     cb(null, `${uuidv4()}${ext}`);
   }
 });
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 } // 50 MB
+});
 
 router.post('/maintenance', requireRoles(['technician', 'engineer', 'manager', 'admin', 'super_admin']), validateMaintenanceRecord, maintenanceRecordController.createRecord);
 router.get('/maintenance', maintenanceRecordController.getAllRecords);

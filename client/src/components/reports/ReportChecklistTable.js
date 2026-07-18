@@ -15,23 +15,23 @@ export default function ReportChecklistTable({
   const postAoiRec = records.find(r => r.equipment_type === 'POST_AOI' || r.equipment_type === 'Post-AOI') || null;
 
   const consolidatedMonthlyChecks = [
-    { key: 'm1_clean_test_area',          label: t('m1_label') },
-    { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label') },
-    { key: 'm9_clean_dust_collector',    label: t('m9_label') },
-    { key: 'm10_exhaust_pipe_damaged',   label: t('m10_label') },
-    { key: 'm3_check_equipment_box',      label: t('m3_label') },
-    { key: 'm4_clean_filter_cotton',      label: t('m4_label') },
-    { key: 'm5_check_belt_dirty_damaged', label: t('m5_label') },
-    { key: 'm6_check_rails_smooth',       label: t('m6_label') },
-    { key: 'm7_check_tank_chain',         label: t('m7_label') },
-    { key: 'm8_check_no_jitter',          label: t('m8_label') },
+    { key: 'm1_clean_test_area',          label: t('m1_label'),  detail: t('m1_detail') },
+    { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label'),  detail: t('m2_detail') },
+    { key: 'm9_clean_dust_collector',     label: t('m9_label'),  detail: t('m9_detail') },
+    { key: 'm10_exhaust_pipe_damaged',    label: t('m10_label'), detail: t('m10_detail') },
+    { key: 'm3_check_equipment_box',      label: t('m3_label'),  detail: t('m3_detail') },
+    { key: 'm4_clean_filter_cotton',      label: t('m4_label'),  detail: t('m4_detail') },
+    { key: 'm5_check_belt_dirty_damaged', label: t('m5_label'),  detail: t('m5_detail') },
+    { key: 'm6_check_rails_smooth',       label: t('m6_label'),  detail: t('m6_detail') },
+    { key: 'm7_check_tank_chain',         label: t('m7_label'),  detail: t('m7_detail') },
+    { key: 'm8_check_no_jitter',          label: t('m8_label'),  detail: t('m8_detail') },
   ];
 
   const consolidatedQuarterlyChecks = [
-    { key: 'q1_clean_cabinet_dust',     label: t('q1_label') },
-    { key: 'q2_inspect_belt',           label: t('q2_label') },
-    { key: 'q3_screws_rails_lubricant', label: t('q3_label') },
-    { key: 'q4_replace_filter_screen',   label: t('q4_label') },
+    { key: 'q1_clean_cabinet_dust',       label: t('q1_label'),  detail: t('q1_detail') },
+    { key: 'q2_inspect_belt',             label: t('q2_label'),  detail: t('q2_detail') },
+    { key: 'q3_screws_rails_lubricant',   label: t('q3_label'),  detail: t('q3_detail') },
+    { key: 'q4_replace_filter_screen',    label: t('q4_label'),  detail: t('q4_detail') },
   ];
 
   const renderResultCell = (rec, key) => {
@@ -84,15 +84,20 @@ export default function ReportChecklistTable({
             color: '#475569',
             fontWeight: 700
           }}>
-            <th style={{ padding: '12px 16px', width: '100px' }}>
+            <th style={{ padding: '12px 16px', width: '80px' }}>
               {language === 'zh' ? '保养周期' : 'Cycle'}
             </th>
             <th style={{ padding: '12px 16px', width: '40px', textAlign: 'center' }}>#</th>
             <th style={{ padding: '12px 16px' }}>
               {language === 'zh' ? '保养检查内容' : 'Maintenance Check Content'}
             </th>
+            <th style={{ padding: '12px 16px', color: '#64748b', fontWeight: 600 }}>
+              {language === 'zh' ? '月度/季度操作项' : 'Monthly/Quarterly Details'}
+            </th>
             <th style={{ padding: '12px 16px', width: '120px', textAlign: 'center', borderLeft: '1px solid #e2e8f0', color: '#1e40af' }}>
-              {activeTab} {language === 'zh' ? '结果' : 'Result'}
+              {primaryRecord.period === 'First Month' && (language === 'zh' ? '第一月 (结果)' : 'First Month (Result)')}
+              {primaryRecord.period === 'Second Month' && (language === 'zh' ? '第二月 (结果)' : 'Second Month (Result)')}
+              {primaryRecord.period === 'Third Month' && (language === 'zh' ? '第三月 (结果)' : 'Third Month (Result)')}
             </th>
           </tr>
         </thead>
@@ -124,11 +129,14 @@ export default function ReportChecklistTable({
                 <td style={{ padding: '10px 16px', color: '#334155' }}>
                   {check.label}
                 </td>
-                <td style={{ padding: '10px 16px', textAlign: 'center', borderLeft: '1px solid #e2e8f0' }}>
-                  {activeTab === 'Laser' && renderResultCell(laserRec, check.key)}
-                  {activeTab === 'SPI' && renderResultCell(spiRec, check.key)}
-                  {activeTab === 'Pre-AOI' && renderResultCell(preAoiRec, check.key)}
-                  {activeTab === 'Post-AOI' && renderResultCell(postAoiRec, check.key)}
+                <td style={{ padding: '10px 16px', color: '#64748b', fontSize: '0.85rem' }}>
+                  {check.detail}
+                </td>
+                <td style={{ padding: '10px 16px', textAlign: 'center', borderLeft: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                  {activeTab === 'Laser' ? renderResultCell(laserRec, check.key) :
+                   activeTab === 'SPI' ? renderResultCell(spiRec, check.key) :
+                   activeTab === 'Pre-AOI' ? renderResultCell(preAoiRec, check.key) :
+                   renderResultCell(postAoiRec, check.key)}
                 </td>
               </tr>
             );
@@ -161,11 +169,14 @@ export default function ReportChecklistTable({
                 <td style={{ padding: '10px 16px', color: '#334155' }}>
                   {check.label}
                 </td>
-                <td style={{ padding: '10px 16px', textAlign: 'center', borderLeft: '1px solid #e2e8f0' }}>
-                  {activeTab === 'Laser' && renderResultCell(laserRec, check.key)}
-                  {activeTab === 'SPI' && renderResultCell(spiRec, check.key)}
-                  {activeTab === 'Pre-AOI' && renderResultCell(preAoiRec, check.key)}
-                  {activeTab === 'Post-AOI' && renderResultCell(postAoiRec, check.key)}
+                <td style={{ padding: '10px 16px', color: '#64748b', fontSize: '0.85rem' }}>
+                  {check.detail}
+                </td>
+                <td style={{ padding: '10px 16px', textAlign: 'center', borderLeft: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                  {activeTab === 'Laser' ? renderResultCell(laserRec, check.key) :
+                   activeTab === 'SPI' ? renderResultCell(spiRec, check.key) :
+                   activeTab === 'Pre-AOI' ? renderResultCell(preAoiRec, check.key) :
+                   renderResultCell(postAoiRec, check.key)}
                 </td>
               </tr>
             );

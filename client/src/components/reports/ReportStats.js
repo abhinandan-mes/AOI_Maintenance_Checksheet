@@ -70,55 +70,15 @@ export default function ReportStats({ rows = [], language = 'en' }) {
   ];
 
   return (
-    <div className="report-stats-grid" style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-      gap: '20px',
-      marginBottom: '24px'
-    }}>
+    <div className="premium-stats-grid">
       {stats.map(s => (
-        <div key={s.key} className="report-stat-card" style={{
-          background: '#ffffff',
-          borderRadius: '16px',
-          padding: '20px 24px',
-          boxShadow: '0 4px 18px rgba(0, 0, 0, 0.04)',
-          border: '1px solid #e2e8f0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '18px',
-          transition: 'all 0.25s ease'
-        }}>
-          <div className="stat-card-icon" style={{
-            background: s.background,
-            color: s.color,
-            borderRadius: '12px',
-            padding: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+        <div key={s.key} className="premium-kpi-card">
+          <div className="premium-kpi-icon-wrap" style={{ background: s.background, color: s.color }}>
             {s.icon}
           </div>
-          <div className="stat-card-info">
-            <h3 style={{
-              fontSize: '0.85rem',
-              color: '#64748b',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              margin: '0 0 4px 0'
-            }}>
-              {language === 'zh' ? s.titleZh : s.titleEn}
-            </h3>
-            <p style={{
-              fontSize: '1.75rem',
-              fontWeight: 800,
-              color: '#0f172a',
-              margin: 0,
-              lineHeight: 1
-            }}>
-              {s.value}
-            </p>
+          <div className="premium-kpi-content">
+            <span className="premium-kpi-label">{language === 'zh' ? s.titleZh : s.titleEn}</span>
+            <span className="premium-kpi-value">{s.value}</span>
           </div>
         </div>
       ))}

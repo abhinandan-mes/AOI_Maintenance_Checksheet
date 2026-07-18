@@ -6,6 +6,7 @@ export default function ImageUpload({ images, setImages, readOnly = false }) {
   const { language } = useLanguage();
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const handleFiles = (files) => {
     const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
@@ -52,15 +53,17 @@ export default function ImageUpload({ images, setImages, readOnly = false }) {
   };
 
   return (
-    <div className="image-upload-wrapper">
-      <div className="image-upload-header">
-        <h4>{language === 'zh' ? '设备状态照片 (必填)' : 'Equipment Status Photos (Mandatory)'}</h4>
-        <p>
-          {language === 'zh' 
-            ? '请上传至少一张设备保养完成后的状态照片' 
-            : 'Please upload at least one photo showing the completed maintenance status'}
-        </p>
-      </div>
+    <div className={`image-upload-wrapper ${readOnly ? 'read-only' : ''}`}>
+      {!readOnly && (
+        <div className="image-upload-header">
+          <h4>{language === 'zh' ? '设备状态照片 (必填)' : 'Equipment Status Photos (Mandatory)'}</h4>
+          <p>
+            {language === 'zh' 
+              ? '请上传至少一张设备保养完成后的状态照片' 
+              : 'Please upload at least one photo showing the completed maintenance status'}
+          </p>
+        </div>
+      )}
 
       {!readOnly && (
         <div 
@@ -92,10 +95,15 @@ export default function ImageUpload({ images, setImages, readOnly = false }) {
       )}
 
       {images.length > 0 && (
-        <div className="image-preview-grid">
+        <div className="image-preview-grid" style={readOnly ? { marginTop: 0, padding: '10px 0' } : {}}>
           {images.map((img, idx) => (
-            <div key={idx} className="image-preview-card">
-              <img src={img.preview || img.url} alt={`upload-${idx}`} />
+            <div 
+              key={idx} 
+              className="image-preview-card" 
+              style={readOnly ? { width: '120px', height: '120px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', cursor: 'pointer' } : { cursor: 'pointer' }}
+              onClick={() => setPreviewImage(img.preview || img.url)}
+            >
+              <img src={img.preview || img.url} alt={`upload-${idx}`} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
               {!readOnly && (
                 <button 
                   type="button" 
@@ -110,6 +118,19 @@ export default function ImageUpload({ images, setImages, readOnly = false }) {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Fullscreen Image Preview Modal */}
+      {previewImage && (
+        <div className="image-preview-modal" onClick={() => setPreviewImage(null)}>
+          <button className="image-preview-close" onClick={() => setPreviewImage(null)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <img src={previewImage} alt="Fullscreen Preview" className="image-preview-full" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
     </div>

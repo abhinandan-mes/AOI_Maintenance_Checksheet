@@ -186,6 +186,43 @@ export default function MaintenanceForm({ currentUser }) {
     }).catch(err => console.error("Failed to fetch assignees", err));
   }, [currentUser]);
 
+  // Handle draft loading and saving for page refreshes
+  useEffect(() => {
+    if (isEditMode) return;
+    const savedDraft = sessionStorage.getItem('maintenanceDraft');
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.formStarted) {
+          setFormStarted(parsed.formStarted);
+          setSelectedLine(parsed.selectedLine);
+          if (parsed.common) setCommon(parsed.common);
+          if (parsed.machines) {
+            // Restore machines but ensure image_paths is array (cannot restore File objects)
+            const restoredMachines = {};
+            for (const key in parsed.machines) {
+              restoredMachines[key] = { ...parsed.machines[key], image_paths: [] };
+            }
+            setMachines(restoredMachines);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to parse draft", err);
+      }
+    }
+  }, [isEditMode]);
+
+  useEffect(() => {
+    if (isEditMode || !formStarted) return;
+    // Don't serialize file objects
+    const machinesToSave = {};
+    for (const key in machines) {
+      machinesToSave[key] = { ...machines[key], image_paths: [] };
+    }
+    const draft = { formStarted, selectedLine, common, machines: machinesToSave };
+    sessionStorage.setItem('maintenanceDraft', JSON.stringify(draft));
+  }, [isEditMode, formStarted, selectedLine, common, machines]);
+
   // Load record and matching 3-in-1 group in edit/review mode
   useEffect(() => {
     if (!isEditMode) return;
@@ -558,6 +595,10 @@ export default function MaintenanceForm({ currentUser }) {
 
       for (const rec of recordsToReview) {
         await apiService.reviewWorkflowRecord(rec.id, type, remarks, common.designated_manager_id || null);
+      }
+
+      if (!isEditMode) {
+        sessionStorage.removeItem('maintenanceDraft');
       }
 
       setModalConfig(prev => ({ ...prev, type: 'success' }));

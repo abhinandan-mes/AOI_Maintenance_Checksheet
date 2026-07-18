@@ -689,8 +689,7 @@
 
 .check-row--done .check-row-text {
   color: #0f172a;
-  text-decoration: line-through;
-  opacity: 0.5;
+  font-weight: 600;
 }
 
 /* Middle column: Subcontent (Excel Detail) */
@@ -708,8 +707,8 @@
 }
 
 .check-row--done .check-row-text-sub {
-  text-decoration: line-through;
-  opacity: 0.5;
+  color: #334155;
+  font-weight: 500;
 }
 
 /* Right column: check mark */
