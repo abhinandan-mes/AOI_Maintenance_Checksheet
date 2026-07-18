@@ -131,10 +131,10 @@ export default function MaintenanceForm({ currentUser }) {
       if (missing.length > 0) {
         setConfirmConfig({
           isOpen: true,
-          title: language === 'zh' ? `⚠️ [${mc.label}] 信息不完整` : `⚠️ [${mc.label}] Incomplete Data`,
+          title: language === 'zh' ? `[${mc.label}] 信息不完整` : `[${mc.label}] Incomplete Data`,
           message: language === 'zh' 
-            ? `您当前在 [${mc.label}] 机器视图中缺少以下项目：\n\n• ${missing.join('\n• ')}\n\n是否仍要继续前往下一个机器视图？`
-            : `You are missing the following in the [${mc.label}] machine view:\n\n• ${missing.join('\n• ')}\n\nDo you want to proceed to the next view anyway?`,
+            ? `您当前在 [${mc.label}] Checksheet 中缺少以下项目：\n\n• ${missing.join('\n• ')}\n\n是否仍要继续前往下一个 Checksheet？`
+            : `You are missing the following in the [${mc.label}] Checksheet:\n\n• ${missing.join('\n• ')}\n\nDo you want to proceed to the next Checksheet anyway?`,
           confirmText: language === 'zh' ? '稍后再填 (继续)' : 'Do it later (Proceed)',
           cancelText: language === 'zh' ? '留在本页 (继续填写)' : 'Stay here (Complete now)',
           showCancel: true,
