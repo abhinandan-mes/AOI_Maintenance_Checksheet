@@ -806,7 +806,7 @@ export default function MaintenanceForm({ currentUser }) {
                       onClick={() => {
                         setMaintenanceType(t);
                         if (t === 'Weekly') setCommon(prev => ({ ...prev, period: 'Weekly' }));
-                        else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: 'First Month' }));
+                        else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: '' }));
                         else if (t === 'Yearly') setCommon(prev => ({ ...prev, period: 'Yearly' }));
                       }}
                     >
@@ -849,13 +849,23 @@ export default function MaintenanceForm({ currentUser }) {
               )}
               <button
                 type="button"
-                className={`sel-start-btn ${(!selectedLine || !common.period) ? 'sel-start-btn--disabled' : ''}`}
-                disabled={!selectedLine || !common.period}
+                className={`sel-start-btn ${!selectedLine ? 'sel-start-btn--disabled' : ''}`}
                 onClick={() => {
+                  if (!selectedLine) return; // Normally disabled if no line selected, but just in case
+                  
+                  if (!maintenanceType) {
+                    showAlert(language === 'zh' ? '缺少保养类型' : 'Missing Maintenance Type', language === 'zh' ? '请选择一个保养类型（每周、每月或每年）。' : 'Please select a Maintenance Type (Weekly, Monthly, or Yearly).');
+                    return;
+                  }
+                  if (maintenanceType === 'Monthly' && !common.period) {
+                    showAlert(language === 'zh' ? '缺少月份' : 'Missing Month', language === 'zh' ? '请选择一个月度 (M1, M2 或 M3)。' : 'Please select a month (Month 1, Month 2, or Month 3).');
+                    return;
+                  }
+                  
                   setCommon(prev => ({ ...prev, line: selectedLine }));
                   setFormStarted(true);
                 }}
-                style={(selectedLine && common.period) ? {
+                style={selectedLine ? {
                   padding: '14px 32px',
                   borderRadius: '999px',
                   background: 'linear-gradient(135deg, #415fff 0%, #2438c0 100%)',
