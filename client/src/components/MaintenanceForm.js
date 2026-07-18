@@ -268,43 +268,43 @@ export default function MaintenanceForm({ currentUser }) {
     const getMonthlyChecks = (machineKey) => {
     if (machineKey === 'LASER') {
       return [
-        { key: 'm1_clean_test_area',          label: t('m1_label') },
-        { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label') },
-        { key: 'm9_clean_dust_collector',    label: t('m9_label') },
-        { key: 'm10_exhaust_pipe_damaged',   label: t('m10_label') },
-        { key: 'm3_check_equipment_box',      label: t('m3_label') },
-        { key: 'm4_clean_filter_cotton',      label: t('m4_label') },
-        { key: 'm5_check_belt_dirty_damaged', label: t('m5_label') },
-        { key: 'm6_check_rails_smooth',       label: t('m6_label') },
-        { key: 'm7_check_tank_chain',         label: t('m7_label') },
-        { key: 'm8_check_no_jitter',          label: t('m8_label') },
+        { key: 'm1_clean_test_area',          label: t('m1_label'),  detail: t('m1_detail') },
+        { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label'),  detail: t('m2_detail') },
+        { key: 'm9_clean_dust_collector',     label: t('m9_label'),  detail: t('m9_detail') },
+        { key: 'm10_exhaust_pipe_damaged',    label: t('m10_label'), detail: t('m10_detail') },
+        { key: 'm3_check_equipment_box',      label: t('m3_label'),  detail: t('m3_detail') },
+        { key: 'm4_clean_filter_cotton',      label: t('m4_label'),  detail: t('m4_detail') },
+        { key: 'm5_check_belt_dirty_damaged', label: t('m5_label'),  detail: t('m5_detail') },
+        { key: 'm6_check_rails_smooth',       label: t('m6_label'),  detail: t('m6_detail') },
+        { key: 'm7_check_tank_chain',         label: t('m7_label'),  detail: t('m7_detail') },
+        { key: 'm8_check_no_jitter',          label: t('m8_label'),  detail: t('m8_detail') },
       ];
     }
     return [
-      { key: 'm1_clean_test_area',          label: t('spi_m1_label') },
-      { key: 'm2_clean_inside_wipe_sensor', label: t('spi_m2_label') },
-      { key: 'm3_check_equipment_box',      label: t('spi_m3_label') },
-      { key: 'm4_clean_filter_cotton',      label: t('spi_m4_label') },
-      { key: 'm5_check_belt_dirty_damaged', label: t('spi_m5_label') },
-      { key: 'm6_check_rails_smooth',       label: t('spi_m6_label') },
-      { key: 'm7_check_tank_chain',         label: t('spi_m7_label') },
-      { key: 'm8_check_no_jitter',          label: t('spi_m8_label') },
+      { key: 'm1_clean_test_area',          label: t('m1_label'), detail: t('spi_m1_label') },
+      { key: 'm2_clean_inside_wipe_sensor', label: t('m2_label'), detail: t('spi_m2_label') },
+      { key: 'm3_check_equipment_box',      label: t('m3_label'), detail: t('spi_m3_label') },
+      { key: 'm4_clean_filter_cotton',      label: t('m4_label'), detail: t('spi_m4_label') },
+      { key: 'm5_check_belt_dirty_damaged', label: t('m5_label'), detail: t('spi_m5_label') },
+      { key: 'm6_check_rails_smooth',       label: t('m6_label'), detail: t('spi_m6_label') },
+      { key: 'm7_check_tank_chain',         label: t('m7_label'), detail: t('spi_m7_label') },
+      { key: 'm8_check_no_jitter',          label: t('m8_label'), detail: t('spi_m8_label') },
     ];
   };
 
   const getQuarterlyChecks = (machineKey) => {
     if (machineKey === 'LASER') {
       return [
-        { key: 'q1_clean_cabinet_dust',     label: t('q1_label') },
-        { key: 'q2_inspect_belt',           label: t('q2_label') },
-        { key: 'q3_screws_rails_lubricant', label: t('q3_label') },
-        { key: 'q4_replace_filter_screen',   label: t('q4_label') },
+        { key: 'q1_clean_cabinet_dust',     label: t('q1_label'), detail: t('q1_detail') },
+        { key: 'q2_inspect_belt',           label: t('q2_label'), detail: t('q2_detail') },
+        { key: 'q3_screws_rails_lubricant', label: t('q3_label'), detail: t('q3_detail') },
+        { key: 'q4_replace_filter_screen',  label: t('q4_label'), detail: t('q4_detail') },
       ];
     }
     return [
-      { key: 'q1_clean_cabinet_dust',     label: t('q1_label') },
-      { key: 'q2_inspect_belt',           label: t('q2_label') },
-      { key: 'q3_screws_rails_lubricant', label: t('q3_label') },
+      { key: 'q1_clean_cabinet_dust',     label: t('q1_label'), detail: t('spi_q1_label') },
+      { key: 'q2_inspect_belt',           label: t('q2_label'), detail: t('spi_q2_label') },
+      { key: 'q3_screws_rails_lubricant', label: t('q3_label'), detail: t('spi_q3_label') },
     ];
   };
 
@@ -550,10 +550,11 @@ export default function MaintenanceForm({ currentUser }) {
   // ── Reusable Check table ──────────────────────────────────────────────────
   const renderChecks = (data, onToggle, mc) => (
     <>
-      <div className="check-table">
+      <div className="check-table check-table-3col">
         <div className="check-table-head">
           <div className="cthead-cycle">{language === 'zh' ? '保养周期' : 'Cycle'}</div>
           <div className="cthead-content">{language === 'zh' ? '保养检查内容' : 'Maintenance Check Content'}</div>
+          <div className="cthead-subcontent">{language === 'zh' ? '月度/季度操作项' : 'Monthly/Quarterly Details'}</div>
           <div className="cthead-status">{language === 'zh' ? '状态' : 'Status'}</div>
         </div>
 
@@ -575,6 +576,9 @@ export default function MaintenanceForm({ currentUser }) {
               <span className="check-row-num">{idx + 1}</span>
               <span className="check-row-text">{c.label}</span>
             </div>
+            <div className="check-row-subcontent">
+              <span className="check-row-text-sub">{c.detail}</span>
+            </div>
             <div className="check-row-status">
               <span
                 className={`check-mark ${data[c.key] ? 'check-mark--done' : ''}`}
@@ -588,7 +592,7 @@ export default function MaintenanceForm({ currentUser }) {
       </div>
 
       {isThirdMonth && (
-        <div className="check-table check-table--quarterly">
+        <div className="check-table check-table-3col check-table--quarterly">
           {getQuarterlyChecks(mc.key).map((c, idx) => (
             <div
               key={c.key}
@@ -606,6 +610,9 @@ export default function MaintenanceForm({ currentUser }) {
               <div className="check-row-content">
                 <span className="check-row-num">{getMonthlyChecks(mc.key).length + idx + 1}</span>
                 <span className="check-row-text">{c.label}</span>
+              </div>
+              <div className="check-row-subcontent">
+                <span className="check-row-text-sub">{c.detail}</span>
               </div>
               <div className="check-row-status">
                 <span

@@ -40,6 +40,19 @@ export const translations = {
     m8_label: "Whether the machine is jittering when testing X and Y axes",
     m9_label: "Clean the dust in the extraction dust collector",
     m10_label: "Check whether the exhaust pipe is damaged",
+    
+    // Monthly Detailed Contents (Column 2)
+    m1_detail: "Clean the scattered materials",
+    m2_detail: "Clean the dust inside ; Wipe track and stop plate sensor",
+    m3_detail: "Clean the sundries",
+    m4_detail: "Clean filter cotton",
+    m5_detail: "Check belt no dirty or damaged",
+    m6_detail: "Check track runs smoothly",
+    m7_detail: "Check tank chain is normal",
+    m8_detail: "No shaft shaking during machine running",
+    m9_detail: "Clean dust in extraction dust collector",
+    m10_detail: "Check exhaust pipe for damage",
+
     // SPI/AOI Monthly
     spi_m1_label: "Clean the scattered materials",
     spi_m2_label: "Clean the dust inside ; Wipe track and stop plate sensor",
@@ -55,6 +68,13 @@ export const translations = {
     q2_label: "Inspect the belt for cleaning or replacement",
     q3_label: "Screws and rails: remove oil, add new lubricant (Include Z axis)",
     q4_label: "Check whether the filter screen of the dust collector needs to be replaced",
+    
+    // Quarterly Detailed Contents (Column 2)
+    q1_detail: "Clean the dust in the equipment cabinet",
+    q2_detail: "Inspect the belt for cleaning or replacement",
+    q3_detail: "X, Y, Z shaft screw rod and guide rail decontamination and oil filling",
+    q4_detail: "Check whether the filter screen of the dust collector needs to be replaced",
+
     // SPI/AOI Quarterly
     spi_q1_label: "Clean the dust in the equipment cabinet",
     spi_q2_label: "inspect the belt for cleaning or replacement",
@@ -329,8 +349,8 @@ export const translations = {
     maint_review_success: "✓ 记录已成功审核签字",
 
     // Monthly Check Labels (Chinese) — 与Excel原文对照更新
-    m1_label: "检查设备内部测试区域有无异物",
-    m2_label: "清洁设备内部及擦拭传感器",
+    m1_label: "检查机器内部测试区域是否有散落物料",
+    m2_label: "清洁机器内部及擦拭传感器",
     m3_label: "检查设备箱体内是否有物品",
     m4_label: "检查风扇内外飘带是否飘动，拆下过滤网清洁灰尘",
     m5_label: "检查皮带是否脏污",
@@ -339,6 +359,19 @@ export const translations = {
     m8_label: "测试X轴和Y轴时设备运行是否有抖动",
     m9_label: "清理抽尘除尘器内灰尘",
     m10_label: "检查排风管有无破损",
+    
+    // Monthly Detailed Contents (Chinese Column 2)
+    m1_detail: "清洁机器内散落物料",
+    m2_detail: "清洁机器内部灰尘；擦拭轨道和停板感应器",
+    m3_detail: "清理机器内部杂物",
+    m4_detail: "清洁设备过滤棉",
+    m5_detail: "检查皮带无脏污、破损",
+    m6_detail: "检查轨道运行顺畅",
+    m7_detail: "检查设备内坦克链正常",
+    m8_detail: "机器运行过程轴无抖动",
+    m9_detail: "清洁抽风集尘器内粉尘",
+    m10_detail: "抽风管检查有无破损",
+
     // SPI/AOI Monthly
     spi_m1_label: "清理散落物料",
     spi_m2_label: "清理内部灰尘；擦拭轨道和挡板传感器",
@@ -354,6 +387,13 @@ export const translations = {
     q2_label: "检查皮带，决定是否清洗或更换",
     q3_label: "丝杆、导轨去油，加新润滑脂（包含Z轴）",
     q4_label: "除尘器过滤网是否需要更换",
+    
+    // Quarterly Detailed Contents (Chinese Column 2)
+    q1_detail: "清洁设备机箱内灰尘",
+    q2_detail: "拆除皮带进行清洁或更换",
+    q3_detail: "X、Y、Z轴丝杆和导轨除污加油",
+    q4_detail: "集尘器过滤网是否更换",
+
     // SPI/AOI Quarterly
     spi_q1_label: "清理设备机柜内的灰尘",
     spi_q2_label: "检查皮带进行清洁或更换",

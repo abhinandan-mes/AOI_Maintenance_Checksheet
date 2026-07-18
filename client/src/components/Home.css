@@ -654,5 +654,77 @@
     justify-content: flex-start;
     gap: 0.5rem;
   }
+  
+  /* Fix border gaps on mobile */
+  .table-responsive {
+    border: none !important;
+    border-radius: 0 !important;
+    overflow-x: hidden !important; /* Disable horizontal scroll when using cards */
+  }
+  
+  .dashboard-card.pending-card {
+    padding: 1rem 0.5rem !important;
+  }
+  
+  .pending-card .card-header {
+    padding: 0 0.5rem;
+  }
+
+  /* Responsive Dashboard Tables as Cards */
+  .dashboard-table thead {
+    display: none;
+  }
+  
+  .dashboard-table, 
+  .dashboard-table tbody, 
+  .dashboard-table tr, 
+  .dashboard-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .dashboard-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  }
+  
+  .dashboard-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: none !important;
+    border-bottom: 1px dashed #f1f5f9 !important;
+    padding: 12px 4px !important;
+    text-align: right;
+  }
+  
+  .dashboard-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #64748b;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-right: 1rem;
+    text-align: left;
+  }
+  
+  .dashboard-table td > div {
+    align-items: flex-end;
+  }
+  
+  .dashboard-table td:last-child {
+    justify-content: center;
+    padding-top: 16px !important;
+    border-bottom: none !important;
+  }
+  
+  .dashboard-table td:last-child::before {
+    display: none;
+  }
 }
 

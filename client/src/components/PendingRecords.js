@@ -166,7 +166,7 @@ export default function PendingRecords({ currentUser }) {
   };
 
   return (
-    <div className="home-container animate-fade-in" style={{ padding: '30px 40px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="home-container animate-fade-in">
       {/* Header section */}
       <div className="home-header" style={{ marginBottom: '24px', borderBottom: '1px solid #e2e8f0', paddingBottom: '16px' }}>
         <h1 className="premium-heading-gradient" style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0 }}>
@@ -194,6 +194,7 @@ export default function PendingRecords({ currentUser }) {
           style={{ 
             display: 'flex', 
             alignItems: 'center', 
+            width: '100%',
             padding: '24px 30px', 
             borderRadius: '16px', 
             background: '#ecfdf5', 
@@ -238,14 +239,14 @@ export default function PendingRecords({ currentUser }) {
               <tbody>
                 {groupedRecords.map(group => (
                   <tr key={group.id} style={{ transition: 'background-color 0.15s ease' }}>
-                    <td style={{ fontWeight: 600, color: '#334155' }}>
+                    <td data-label={language === 'zh' ? '保养日期' : 'Date'} style={{ fontWeight: 600, color: '#334155' }}>
                       {new Date(group.date).toLocaleDateString(language === 'zh' ? 'zh-CN' : undefined, {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
                       })}
                     </td>
-                    <td>
+                    <td data-label={language === 'zh' ? '生产线别' : 'Line'}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ background: '#f1f5f9', color: '#1e3a8a', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem', width: 'fit-content' }}>
                           Line {group.line}
@@ -255,14 +256,14 @@ export default function PendingRecords({ currentUser }) {
                         </span>
                       </div>
                     </td>
-                    <td>
+                    <td data-label={language === 'zh' ? '审核状态' : 'Status'}>
                       <span className={`status-badge status-${group.status.toLowerCase()}`}>
                         {group.status === 'DISAPPROVED' && (language === 'zh' ? '已退回' : 'Rejected')}
                         {group.status === 'SUBMITTED' && (language === 'zh' ? '待审核' : 'Pending Review')}
                         {group.status === 'ENG_APPROVED' && (language === 'zh' ? '待审批' : 'Pending Approval')}
                       </span>
                     </td>
-                    <td>
+                    <td data-label={language === 'zh' ? '登记/审核人员' : 'Submitted/Review By'}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.85rem' }}>
                         <span>👤 <strong style={{ color: '#475569' }}>{language === 'zh' ? '提交人' : 'Submitter'}:</strong> {group.submitted_by}</span>
                         {group.status === 'ENG_APPROVED' && group.engineer_reviewed_by && (
@@ -290,10 +291,10 @@ export default function PendingRecords({ currentUser }) {
                         )}
                       </div>
                     </td>
-                    <td style={{ fontFamily: 'monospace', fontWeight: 500, color: '#475569' }}>
+                    <td data-label={language === 'zh' ? '登记时间' : 'Time'} style={{ fontFamily: 'monospace', fontWeight: 500, color: '#475569' }}>
                       {group.time}
                     </td>
-                    <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <td data-label={language === 'zh' ? '操作' : 'Action'} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       {group.status === 'DISAPPROVED' ? (
                         <button
                           className="btn-review-sign btn-action-modify"
