@@ -634,7 +634,10 @@ export default function MaintenanceForm({ currentUser }) {
           <div className="cthead-status">{language === 'zh' ? '状态' : 'Status'}</div>
         </div>
 
-        {getMonthlyChecks(mc.key).map((c, idx) => (
+        {(maintenanceType === 'Yearly' 
+          ? [...getMonthlyChecks(mc.key), ...getQuarterlyChecks(mc.key)] 
+          : getMonthlyChecks(mc.key)
+        ).map((c, idx) => (
           <div
             key={c.key}
             className={`check-row ${data[c.key] ? 'check-row--done' : ''}`}
@@ -669,7 +672,7 @@ export default function MaintenanceForm({ currentUser }) {
         ))}
       </div>
 
-      {isThirdMonth && (
+      {(isThirdMonth && maintenanceType !== 'Yearly') && (
         <div className="check-table check-table-3col check-table--quarterly">
           {getQuarterlyChecks(mc.key).map((c, idx) => (
             <div
