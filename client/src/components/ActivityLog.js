@@ -116,6 +116,27 @@ export default function ActivityLog({ currentUser }) {
   const [userQuery, setUserQuery] = useState('');
   const [selectedAction, setSelectedAction] = useState('ALL');
   const [selectedPeriod, setSelectedPeriod] = useState('ALL');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(15);
+
+  useEffect(() => {
+    const updatePageSize = () => {
+      // Approx 500px for headers/filters + ~55px per row
+      const availableHeight = window.innerHeight - 500;
+      let calculatedSize = Math.floor(availableHeight / 55);
+      if (calculatedSize < 5) calculatedSize = 5;
+      if (calculatedSize > 100) calculatedSize = 100;
+      setPageSize(calculatedSize);
+    };
+
+    updatePageSize();
+    window.addEventListener('resize', updatePageSize);
+    return () => window.removeEventListener('resize', updatePageSize);
+  }, []);
 
 
   const handleRefreshClick = () => {
@@ -335,15 +356,36 @@ export default function ActivityLog({ currentUser }) {
         matchPeriod = e.period === selectedPeriod;
       }
 
-      return matchUser && matchAction && matchPeriod;
+      let matchDate = true;
+      if (dateFrom) {
+        if (new Date(e.timestamp) < new Date(dateFrom)) matchDate = false;
+      }
+      if (dateTo) {
+        const nextDay = new Date(dateTo);
+        nextDay.setDate(nextDay.getDate() + 1);
+        if (new Date(e.timestamp) >= nextDay) matchDate = false;
+      }
+
+      return matchUser && matchAction && matchPeriod && matchDate;
     });
-  }, [activityEvents, userQuery, selectedAction, selectedPeriod]);
+  }, [activityEvents, userQuery, selectedAction, selectedPeriod, dateFrom, dateTo]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [userQuery, selectedAction, selectedPeriod, dateFrom, dateTo]);
 
   const clearFilters = () => {
     setUserQuery('');
     setSelectedAction('ALL');
     setSelectedPeriod('ALL');
+    setDateFrom('');
+    setDateTo('');
+    setCurrentPage(1);
   };
+
+  const totalPages = Math.ceil(filteredEvents.length / pageSize) || 1;
+  const paginatedEvents = filteredEvents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="activity-container animate-fade-in">
@@ -455,6 +497,26 @@ export default function ActivityLog({ currentUser }) {
               <option value="Third Month">{language === 'zh' ? '第三月 (M3)' : 'Month 3'}</option>
             </select>
           </div>
+          
+          <div className="filter-item">
+            <label>{language === 'zh' ? '开始日期' : 'DATE FROM'}</label>
+            <input 
+              type="date" 
+              value={dateFrom} 
+              onChange={e => setDateFrom(e.target.value)}
+              style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none' }}
+            />
+          </div>
+
+          <div className="filter-item">
+            <label>{language === 'zh' ? '结束日期' : 'DATE TO'}</label>
+            <input 
+              type="date" 
+              value={dateTo} 
+              onChange={e => setDateTo(e.target.value)}
+              style={{ padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', outline: 'none' }}
+            />
+          </div>
 
           <div className="filter-actions-row">
             <button className="btn-clear-filters" onClick={clearFilters}>
@@ -497,8 +559,8 @@ export default function ActivityLog({ currentUser }) {
                     <div className="logs-spinner">{t('loading')}</div>
                   </td>
                 </tr>
-              ) : filteredEvents.length > 0 ? (
-                filteredEvents.map(event => {
+              ) : paginatedEvents.length > 0 ? (
+                paginatedEvents.map(event => {
                   const userInitials = (event.user && event.user !== '—') ? event.user.substring(0, 2).toUpperCase() : 'NA';
                   const colorClass = 'avatar-grad-1';
                   
@@ -547,6 +609,35 @@ export default function ActivityLog({ currentUser }) {
             </tbody>
           </table>
         </div>
+        
+        {!loading && filteredEvents.length > 0 && (
+          <div className="pagination-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ color: '#64748b', fontSize: '0.9rem' }}>
+              {language === 'zh' 
+                ? `显示 ${((currentPage - 1) * pageSize) + 1} 到 ${Math.min(currentPage * pageSize, filteredEvents.length)} 条，共 ${filteredEvents.length} 条记录`
+                : `Showing ${((currentPage - 1) * pageSize) + 1} to ${Math.min(currentPage * pageSize, filteredEvents.length)} of ${filteredEvents.length} entries`}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #cbd5e1', background: currentPage === 1 ? '#f8fafc' : 'white', color: currentPage === 1 ? '#cbd5e1' : '#334155', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+              >
+                {language === 'zh' ? '上一页' : 'Previous'}
+              </button>
+              <div style={{ padding: '0 8px', fontWeight: '600', color: '#0f172a' }}>
+                {currentPage} / {totalPages}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #cbd5e1', background: currentPage === totalPages ? '#f8fafc' : 'white', color: currentPage === totalPages ? '#cbd5e1' : '#334155', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+              >
+                {language === 'zh' ? '下一页' : 'Next'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
