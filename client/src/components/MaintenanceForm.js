@@ -5,6 +5,7 @@ import './MaintenanceForm.css';
 import { useLanguage } from '../contexts/LanguageContext';
 import WorkflowModal from './WorkflowModal';
 import ConfirmModal from './ConfirmModal';
+import ImageUpload from './ImageUpload';
 
 const lineOptions = Array.from({ length: 25 }, (_, i) => String(401 + i));
 
@@ -60,6 +61,7 @@ const blankMachine = () => ({
   machine_type: '',
   machine_name: '',
   machine_asset_no: '',
+  image_paths: [],
   m1_clean_test_area: false,
   m2_clean_inside_wipe_sensor: false,
   m3_check_equipment_box: false,
@@ -247,6 +249,9 @@ export default function MaintenanceForm({ currentUser }) {
                 q4_replace_filter_screen: Boolean(rec.q4_replace_filter_screen),
                 status: rec.status,
                 rejection_reason: rec.rejection_reason,
+                image_paths: Array.isArray(rec.image_paths) 
+                  ? rec.image_paths.map(p => ({ url: `http://localhost:5010${p}`, path: p })) 
+                  : [],
                 engineer_reviewed_by: rec.engineer_reviewed_by,
                 manager_reviewed_by: rec.manager_reviewed_by
               };
@@ -375,6 +380,12 @@ export default function MaintenanceForm({ currentUser }) {
       validationErrors.push(language === 'zh' ? `以下设备标签页缺少设备型号/名称/资产编号: ${tabs}` : `Missing equipment info (Type/Name/Asset No) in tabs: ${tabs}`);
     }
 
+    const missingImages = MACHINE_CONFIG.filter(m => !machines[m.key].image_paths || machines[m.key].image_paths.length === 0);
+    if (missingImages.length > 0) {
+      const tabs = missingImages.map(m => m.label).join(', ');
+      validationErrors.push(language === 'zh' ? `以下设备必须上传至少一张状态照片: ${tabs}` : `Mandatory equipment photos are missing in tabs: ${tabs}`);
+    }
+
     if (validationErrors.length > 0) {
       setMessage(`⚠️ ${language === 'zh' ? '无法提交' : 'Cannot submit'}: ${validationErrors.join(' | ')}`);
       return;
@@ -390,6 +401,20 @@ export default function MaintenanceForm({ currentUser }) {
       try {
         for (const key of MACHINE_CONFIG.map(m => m.key)) {
           const d = machines[key];
+          
+          // 1. Upload new images if any
+          let finalPaths = d.image_paths.filter(img => !img.file).map(img => img.path);
+          const newFiles = d.image_paths.filter(img => img.file).map(img => img.file);
+          
+          if (newFiles.length > 0) {
+            const formData = new FormData();
+            newFiles.forEach(file => formData.append('images', file));
+            const uploadRes = await apiService.uploadImages(formData);
+            if (uploadRes.data.success) {
+              finalPaths = [...finalPaths, ...uploadRes.data.paths];
+            }
+          }
+
           const payload = {
             equipment_type: key,
             line: common.line,
@@ -399,6 +424,7 @@ export default function MaintenanceForm({ currentUser }) {
             machine_type: d.machine_type,
             machine_name: d.machine_name,
             machine_asset_no: d.machine_asset_no,
+            image_paths: finalPaths,
             remarks: common.remarks || '',
             designated_engineer_id: common.designated_engineer_id || null,
             designated_manager_id: common.designated_manager_id || null,
@@ -954,6 +980,21 @@ export default function MaintenanceForm({ currentUser }) {
                   <div className="mcard-body">
                     <div className="checks-wrap">
                       {renderChecks(data, (key) => toggleCheck(mc.key, key), mc)}
+                    </div>
+
+                    {/* Premium Image Upload Zone */}
+                    <div className="image-upload-section">
+                      <ImageUpload 
+                        images={data.image_paths || []} 
+                        setImages={(setter) => {
+                          setMachines(prev => {
+                            const currentImages = prev[mc.key].image_paths || [];
+                            const newImages = typeof setter === 'function' ? setter(currentImages) : setter;
+                            return { ...prev, [mc.key]: { ...prev[mc.key], image_paths: newImages } };
+                          });
+                        }} 
+                        readOnly={isReadOnly} 
+                      />
                     </div>
 
                     

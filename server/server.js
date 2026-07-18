@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const initializeDatabase = require('./config/schema');
@@ -35,6 +36,9 @@ app.use('/api/auth/login', loginLimiter);
 // Routes
 app.use('/api', authRoutes);
 app.use('/api', authenticateToken, maintenanceRecordRoutes);
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReportChecklistTable from './ReportChecklistTable';
 import ReportTimeline from './ReportTimeline';
+import ImageUpload from '../ImageUpload';
 import apiService from '../../services/api';
 
 export default function ReportDetailPanel({
@@ -129,6 +130,17 @@ export default function ReportDetailPanel({
                 </p>
               </div>
             </div>
+
+            {/* Display Attached Images */}
+            {Array.isArray(rec.image_paths) && rec.image_paths.length > 0 && (
+              <div className="premium-machine-images" style={{ padding: '0 24px 24px 24px' }}>
+                <ImageUpload 
+                  images={rec.image_paths.map(p => ({ url: `http://localhost:5010${p}` }))} 
+                  setImages={() => {}} 
+                  readOnly={true} 
+                />
+              </div>
+            )}
           </div>
         )}
       </div>

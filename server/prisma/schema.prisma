@@ -52,6 +52,9 @@ model AoiSpiMaintenanceRecord {
   q3_screws_rails_lubricant  Boolean?
   q4_replace_filter_screen   Boolean?
 
+  // Uploaded Images
+  image_paths                Json?
+
   created_at                 DateTime @default(now()) @db.Timestamp(6)
   updated_at                 DateTime @default(now()) @updatedAt @db.Timestamp(6)
 

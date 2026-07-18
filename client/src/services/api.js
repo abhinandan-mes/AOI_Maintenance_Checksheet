@@ -64,7 +64,10 @@ export const apiService = {
   deleteMaintenanceRecord: (id) => API.delete(`/maintenance/${id}`),
   batchReviewRecords: (payload) => API.post('/maintenance/batch-review', payload),
   batchReassignRecords: (payload) => API.post('/maintenance/batch-reassign', payload),
-  batchDeleteRecords: (payload) => API.post('/maintenance/batch-delete', payload)
+  batchDeleteRecords: (payload) => API.post('/maintenance/batch-delete', payload),
+  uploadImages: (formData) => API.post('/maintenance/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
 };
 
 export default apiService;

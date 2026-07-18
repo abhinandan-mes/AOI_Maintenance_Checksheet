@@ -33,7 +33,8 @@ const maintenanceRecordModel = {
       remarks: data.remarks || null,
       submitted_ip: data.submitted_ip || null,
       designated_engineer_id: data.designated_engineer_id || null,
-      designated_manager_id: data.designated_manager_id || null
+      designated_manager_id: data.designated_manager_id || null,
+      image_paths: data.image_paths || []
     };
 
     maintenanceFields.forEach(field => {
@@ -78,7 +79,8 @@ const maintenanceRecordModel = {
       rejection_reason: null,
       submitted_ip: data.submitted_ip || null,
       designated_engineer_id: data.designated_engineer_id || null,
-      designated_manager_id: data.designated_manager_id || null
+      designated_manager_id: data.designated_manager_id || null,
+      image_paths: data.image_paths || []
     };
 
     maintenanceFields.forEach(field => {
