@@ -116,6 +116,28 @@ export default function MaintenanceForm({ currentUser }) {
   const [visitedTabs, setVisitedTabs] = useState([0]);
 
   const handleTabChange = (idx) => {
+    if (idx !== activeTab && !isReadOnly) {
+      const mc = MACHINE_CONFIG[activeTab];
+      const data = machines[mc.key];
+      const missing = [];
+      if (!data.machine_type.trim()) missing.push(language === 'zh' ? '设备型号' : 'Machine Type');
+      if (!data.machine_name.trim()) missing.push(language === 'zh' ? '设备名称' : 'Machine Name');
+      if (!data.machine_asset_no.trim()) missing.push(language === 'zh' ? '资产编号' : 'Asset No');
+      if (!data.image_paths?.length) missing.push(language === 'zh' ? '设备状态照片 (必填)' : 'Equipment Photo (Mandatory)');
+      if (hasUnchecked(data, mc.key) && !common.remarks.trim()) {
+        missing.push(language === 'zh' ? '有未勾选项，必须填写备注' : 'Remarks required for unchecked items');
+      }
+
+      if (missing.length > 0) {
+        showAlert(
+          language === 'zh' ? `⚠️ [${mc.label}] 选项卡信息不完整` : `⚠️ [${mc.label}] Tab Incomplete`,
+          language === 'zh' 
+            ? `您离开了一个未填写完整的选项卡。缺失以下项目：\n\n• ${missing.join('\n• ')}`
+            : `You left an incomplete tab. Missing the following:\n\n• ${missing.join('\n• ')}`
+        );
+      }
+    }
+
     setVisitedTabs(prev => {
       if (!prev.includes(idx)) return [...prev, idx];
       return prev;
