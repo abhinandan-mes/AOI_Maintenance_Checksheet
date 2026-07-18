@@ -789,6 +789,50 @@ export default function MaintenanceForm({ currentUser }) {
               ))}
             </div>
 
+            {selectedLine && (
+              <div style={{ marginTop: '28px', paddingTop: '28px', borderTop: '1px dashed #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <h3 style={{ fontSize: '1rem', color: '#334155', margin: 0, fontWeight: 700 }}>
+                  {language === 'zh' ? '选择保养类型' : 'Select Maintenance Type'}
+                </h3>
+                <div className="period-switcher">
+                  {['Weekly', 'Monthly', 'Yearly'].map((t, i) => (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`period-tab ${maintenanceType === t ? 'active' : ''}`}
+                      onClick={() => {
+                        setMaintenanceType(t);
+                        if (t === 'Weekly') setCommon(prev => ({ ...prev, period: 'Weekly' }));
+                        else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: 'First Month' }));
+                        else if (t === 'Yearly') setCommon(prev => ({ ...prev, period: 'Yearly' }));
+                      }}
+                    >
+                      {language === 'zh'
+                        ? ['每周保养', '每月保养', '每年保养'][i]
+                        : ['Weekly', 'Monthly', 'Yearly'][i]}
+                    </button>
+                  ))}
+                </div>
+                
+                {maintenanceType === 'Monthly' && (
+                  <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-8px' }}>
+                    {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`period-tab ${common.period === p ? 'active' : ''}`}
+                        onClick={() => setCommon(prev => ({ ...prev, period: p }))}
+                      >
+                        {language === 'zh'
+                          ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
+                          : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="sel-cta-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', marginTop: '30px', paddingTop: '24px', borderTop: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
               {selectedLine ? (
                 <div className="sel-chosen-badge" style={{ background: 'rgba(65, 95, 255, 0.08)', color: '#415fff', border: '1px solid rgba(65, 95, 255, 0.2)', padding: '8px 20px', borderRadius: '100px', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
@@ -892,54 +936,13 @@ export default function MaintenanceForm({ currentUser }) {
         </div>
 
         <div className="topbar-center">
-          {isEditMode ? (
-            <div className="topbar-period-display" style={{ fontWeight: 700, color: '#1e3a8a', background: '#eff6ff', padding: '6px 16px', borderRadius: '8px', fontSize: '0.88rem' }}>
-              ⏳ {common.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
-              {common.period === 'First Month' && t('maint_period_m1')}
-              {common.period === 'Second Month' && t('maint_period_m2')}
-              {common.period === 'Third Month' && t('maint_period_m3')}
-              {common.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <div className="period-switcher">
-                {['Weekly', 'Monthly', 'Yearly'].map((t, i) => (
-                  <button
-                    key={t}
-                    type="button"
-                    className={`period-tab ${maintenanceType === t ? 'active' : ''}`}
-                    onClick={() => {
-                      setMaintenanceType(t);
-                      if (t === 'Weekly') setCommon(prev => ({ ...prev, period: 'Weekly' }));
-                      else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: 'First Month' }));
-                      else if (t === 'Yearly') setCommon(prev => ({ ...prev, period: 'Yearly' }));
-                    }}
-                  >
-                    {language === 'zh'
-                      ? ['每周保养', '每月保养', '每年保养'][i]
-                      : ['Weekly', 'Monthly', 'Yearly'][i]}
-                  </button>
-                ))}
-              </div>
-              
-              {maintenanceType === 'Monthly' && (
-                <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-4px' }}>
-                  {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
-                    <button
-                      key={p}
-                      type="button"
-                      className={`period-tab ${common.period === p ? 'active' : ''}`}
-                      onClick={() => setCommon(prev => ({ ...prev, period: p }))}
-                    >
-                      {language === 'zh'
-                        ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
-                        : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div className="topbar-period-display" style={{ fontWeight: 700, color: '#1e3a8a', background: '#eff6ff', padding: '6px 16px', borderRadius: '8px', fontSize: '0.88rem' }}>
+            ⏳ {common.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
+            {common.period === 'First Month' && t('maint_period_m1')}
+            {common.period === 'Second Month' && t('maint_period_m2')}
+            {common.period === 'Third Month' && t('maint_period_m3')}
+            {common.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
+          </div>
         </div>
 
         <div className="topbar-right">
