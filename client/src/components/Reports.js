@@ -727,7 +727,7 @@ export default function Reports({ currentUser }) {
         `;
       });
 
-      if (group.period === 'Third Month') {
+      if (group.period === 'Third Month' || group.period === 'Yearly') {
         htmlContent += `<tr><td colspan="5" style="background-color: #f1f5f9; color: #1e3a8a; font-weight: bold; text-align: center;">Quarterly Checks</td></tr>`;
         quarterlyChecks.forEach(c => {
           htmlContent += `
@@ -1038,9 +1038,11 @@ export default function Reports({ currentUser }) {
                       <td style={{ fontWeight: 600, color: '#334155' }}>{formatDate(group.date)}</td>
                       <td><span style={{ background: '#f1f5f9', color: '#1e3a8a', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', fontSize: '0.85rem' }}>Line {group.line}</span></td>
                       <td>
+                        {group.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
                         {group.period === 'First Month' && t('maint_period_m1')}
                         {group.period === 'Second Month' && t('maint_period_m2')}
                         {group.period === 'Third Month' && t('maint_period_m3')}
+                        {group.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
                       </td>
                       <td style={{ fontSize: '0.85rem', color: '#475569' }}>{group.submitted_by || '—'}</td>
                       <td>

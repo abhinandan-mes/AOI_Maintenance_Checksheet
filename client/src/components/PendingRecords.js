@@ -159,9 +159,11 @@ export default function PendingRecords({ currentUser }) {
   }, [pendingRecords, language]);
 
   const getPeriodLabel = (period) => {
+    if (period === 'Weekly') return language === 'zh' ? '每周' : 'Weekly';
     if (period === 'First Month') return t('maint_period_m1');
     if (period === 'Second Month') return t('maint_period_m2');
     if (period === 'Third Month') return t('maint_period_m3');
+    if (period === 'Yearly') return language === 'zh' ? '每年' : 'Yearly';
     return period;
   };
 

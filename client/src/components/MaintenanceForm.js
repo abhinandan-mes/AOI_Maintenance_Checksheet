@@ -87,6 +87,7 @@ export default function MaintenanceForm({ currentUser }) {
   // ── Selection state ───────────────────────────────────────────────────────
   const [selectedLine, setSelectedLine] = useState('');
   const [formStarted, setFormStarted] = useState(isEditMode);
+  const [maintenanceType, setMaintenanceType] = useState('Monthly'); // 'Weekly' | 'Monthly' | 'Yearly'
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [common, setCommon] = useState({
@@ -243,6 +244,9 @@ export default function MaintenanceForm({ currentUser }) {
             confirmation: false,
             remarks: r.remarks || '',
           });
+          if (r.period === 'Weekly') setMaintenanceType('Weekly');
+          else if (r.period === 'Yearly') setMaintenanceType('Yearly');
+          else setMaintenanceType('Monthly');
 
           // Fetch all records to compile the matching 3-in-1 group
           const allRes = await apiService.getAllMaintenanceRecords();
@@ -350,10 +354,14 @@ export default function MaintenanceForm({ currentUser }) {
     ];
   };
 
-  const isThirdMonth   = common.period === 'Third Month';
+  const isThirdMonth   = common.period === 'Third Month' || common.period === 'Yearly';
+  const isMachineFilled = (machineData, eqType) => {
+    const isLaser = eqType === 'LASER';
+    const checks = [...getMonthlyChecks(eqType), ...(isThirdMonth ? getQuarterlyChecks(eqType) : [])];
+    return checks.every(c => machineData[c.key] === true);
+  };
   
   const getTotalChecks = (machineKey) => {
-    const isThirdMonth = common.period === 'Third Month';
     if (machineKey === 'LASER') {
       return isThirdMonth ? 14 : 10;
     }
@@ -886,24 +894,50 @@ export default function MaintenanceForm({ currentUser }) {
         <div className="topbar-center">
           {isEditMode ? (
             <div className="topbar-period-display" style={{ fontWeight: 700, color: '#1e3a8a', background: '#eff6ff', padding: '6px 16px', borderRadius: '8px', fontSize: '0.88rem' }}>
-              ⏳ {common.period === 'First Month' && t('maint_period_m1')}
+              ⏳ {common.period === 'Weekly' && (language === 'zh' ? '每周' : 'Weekly')}
+              {common.period === 'First Month' && t('maint_period_m1')}
               {common.period === 'Second Month' && t('maint_period_m2')}
               {common.period === 'Third Month' && t('maint_period_m3')}
+              {common.period === 'Yearly' && (language === 'zh' ? '每年' : 'Yearly')}
             </div>
           ) : (
-            <div className="period-switcher">
-              {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
-                <button
-                  key={p}
-                  type="button"
-                  className={`period-tab ${common.period === p ? 'active' : ''}`}
-                  onClick={() => setCommon(prev => ({ ...prev, period: p }))}
-                >
-                  {language === 'zh'
-                    ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
-                    : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
-                </button>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <div className="period-switcher">
+                {['Weekly', 'Monthly', 'Yearly'].map((t, i) => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`period-tab ${maintenanceType === t ? 'active' : ''}`}
+                    onClick={() => {
+                      setMaintenanceType(t);
+                      if (t === 'Weekly') setCommon(prev => ({ ...prev, period: 'Weekly' }));
+                      else if (t === 'Monthly') setCommon(prev => ({ ...prev, period: 'First Month' }));
+                      else if (t === 'Yearly') setCommon(prev => ({ ...prev, period: 'Yearly' }));
+                    }}
+                  >
+                    {language === 'zh'
+                      ? ['每周保养', '每月保养', '每年保养'][i]
+                      : ['Weekly', 'Monthly', 'Yearly'][i]}
+                  </button>
+                ))}
+              </div>
+              
+              {maintenanceType === 'Monthly' && (
+                <div className="period-switcher" style={{ transform: 'scale(0.85)', marginTop: '-4px' }}>
+                  {['First Month', 'Second Month', 'Third Month'].map((p, i) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`period-tab ${common.period === p ? 'active' : ''}`}
+                      onClick={() => setCommon(prev => ({ ...prev, period: p }))}
+                    >
+                      {language === 'zh'
+                        ? ['M1 第一月', 'M2 第二月', 'M3 季度'][i]
+                        : ['Month 1', 'Month 2', 'Month 3 · Quarterly'][i]}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
