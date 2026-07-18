@@ -129,12 +129,26 @@ export default function MaintenanceForm({ currentUser }) {
       }
 
       if (missing.length > 0) {
-        showAlert(
-          language === 'zh' ? `⚠️ [${mc.label}] 选项卡信息不完整` : `⚠️ [${mc.label}] Tab Incomplete`,
-          language === 'zh' 
-            ? `您离开了一个未填写完整的选项卡。缺失以下项目：\n\n• ${missing.join('\n• ')}`
-            : `You left an incomplete tab. Missing the following:\n\n• ${missing.join('\n• ')}`
-        );
+        setConfirmConfig({
+          isOpen: true,
+          title: language === 'zh' ? `⚠️ [${mc.label}] 信息不完整` : `⚠️ [${mc.label}] Incomplete Data`,
+          message: language === 'zh' 
+            ? `您当前在 [${mc.label}] 机器视图中缺少以下项目：\n\n• ${missing.join('\n• ')}\n\n是否仍要继续前往下一个机器视图？`
+            : `You are missing the following in the [${mc.label}] machine view:\n\n• ${missing.join('\n• ')}\n\nDo you want to proceed to the next view anyway?`,
+          confirmText: language === 'zh' ? '稍后再填 (继续)' : 'Do it later (Proceed)',
+          cancelText: language === 'zh' ? '留在本页 (继续填写)' : 'Stay here (Complete now)',
+          showCancel: true,
+          isDanger: true,
+          onConfirm: () => {
+            setConfirmConfig(prev => ({ ...prev, isOpen: false }));
+            setVisitedTabs(prev => {
+              if (!prev.includes(idx)) return [...prev, idx];
+              return prev;
+            });
+            setActiveTab(idx);
+          }
+        });
+        return; // Wait for user choice
       }
     }
 
