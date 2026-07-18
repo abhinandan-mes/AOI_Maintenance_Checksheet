@@ -87,12 +87,12 @@ export default function MaintenanceForm({ currentUser }) {
   // ── Selection state ───────────────────────────────────────────────────────
   const [selectedLine, setSelectedLine] = useState('');
   const [formStarted, setFormStarted] = useState(isEditMode);
-  const [maintenanceType, setMaintenanceType] = useState('Monthly'); // 'Weekly' | 'Monthly' | 'Yearly'
+  const [maintenanceType, setMaintenanceType] = useState(''); // '' | 'Weekly' | 'Monthly' | 'Yearly'
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [common, setCommon] = useState({
     line: '',
-    period: 'First Month',
+    period: '',
     date: new Date().toISOString().split('T')[0],
     submitted_by: '',
     designated_engineer_id: '',
@@ -194,10 +194,11 @@ export default function MaintenanceForm({ currentUser }) {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        if (parsed.formStarted) {
+        if (parsed.formStarted !== undefined) {
           setFormStarted(parsed.formStarted);
-          setSelectedLine(parsed.selectedLine);
+          if (parsed.selectedLine) setSelectedLine(parsed.selectedLine);
           if (parsed.common) setCommon(parsed.common);
+          if (parsed.maintenanceType) setMaintenanceType(parsed.maintenanceType);
           if (parsed.machines) {
             // Restore machines but ensure image_paths is array (cannot restore File objects)
             const restoredMachines = {};
@@ -214,15 +215,15 @@ export default function MaintenanceForm({ currentUser }) {
   }, [isEditMode]);
 
   useEffect(() => {
-    if (isEditMode || !formStarted) return;
+    if (isEditMode) return;
     // Don't serialize file objects
     const machinesToSave = {};
     for (const key in machines) {
       machinesToSave[key] = { ...machines[key], image_paths: [] };
     }
-    const draft = { formStarted, selectedLine, common, machines: machinesToSave };
+    const draft = { formStarted, selectedLine, common, machines: machinesToSave, maintenanceType };
     sessionStorage.setItem('maintenanceDraft', JSON.stringify(draft));
-  }, [isEditMode, formStarted, selectedLine, common, machines]);
+  }, [isEditMode, formStarted, selectedLine, common, machines, maintenanceType]);
 
   // Load record and matching 3-in-1 group in edit/review mode
   useEffect(() => {
@@ -846,13 +847,13 @@ export default function MaintenanceForm({ currentUser }) {
               )}
               <button
                 type="button"
-                className={`sel-start-btn ${!selectedLine ? 'sel-start-btn--disabled' : ''}`}
-                disabled={!selectedLine}
+                className={`sel-start-btn ${(!selectedLine || !common.period) ? 'sel-start-btn--disabled' : ''}`}
+                disabled={!selectedLine || !common.period}
                 onClick={() => {
                   setCommon(prev => ({ ...prev, line: selectedLine }));
                   setFormStarted(true);
                 }}
-                style={selectedLine ? {
+                style={(selectedLine && common.period) ? {
                   padding: '14px 32px',
                   borderRadius: '999px',
                   background: 'linear-gradient(135deg, #415fff 0%, #2438c0 100%)',
