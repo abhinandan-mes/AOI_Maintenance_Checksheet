@@ -7,6 +7,7 @@ import UserManagement from './components/UserManagement';
 import Home from './components/Home';
 import PendingRecords from './components/PendingRecords';
 import ActivityLog from './components/ActivityLog';
+import LineManagement from './components/LineManagement';
 import apiService, { authStorage } from './services/api';
 import vivoLogo from './assets/vivo-logo.svg';
 import './App.css';
@@ -259,6 +260,14 @@ function App() {
             >
               {t('nav_activity_log')}
             </NavLink>
+            {(user.role === 'super_admin' || user.role === 'admin') && (
+              <NavLink
+                to="/lines"
+                className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}
+              >
+                {t('nav_line_mgmt')}
+              </NavLink>
+            )}
             {(user.role === 'super_admin' || user.role === 'admin' || user.role === 'manager') && (
               <NavLink
                 to="/users"
@@ -317,6 +326,9 @@ function App() {
           ) : null}
           <Route path="/reports" element={<Reports currentUser={user} />} />
           <Route path="/activity-log" element={<ActivityLog currentUser={user} />} />
+            {(user.role === 'super_admin' || user.role === 'admin') ? (
+              <Route path="/lines" element={<LineManagement currentUser={user} />} />
+            ) : null}
           {(user.role === 'super_admin' || user.role === 'admin' || user.role === 'manager') ? (
             <Route path="/users" element={<UserManagement currentUser={user} />} />
           ) : null}

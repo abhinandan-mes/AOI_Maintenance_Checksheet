@@ -67,7 +67,12 @@ export const apiService = {
   batchDeleteRecords: (payload) => API.post('/maintenance/batch-delete', payload),
   uploadImages: (formData) => API.post('/maintenance/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
-  })
+  }),
+
+  // Line Status APIs
+  getAllLines: () => API.get('/lines'),
+  getInstalledLines: () => API.get('/lines/installed'),
+  updateLineStatus: (line, data) => API.patch(`/lines/${line}`, data)
 };
 
 export default apiService;
