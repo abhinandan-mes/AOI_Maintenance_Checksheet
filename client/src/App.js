@@ -254,12 +254,6 @@ function App() {
             >
               {t('nav_reports')}
             </NavLink>
-            <NavLink
-              to="/activity-log"
-              className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}
-            >
-              {t('nav_activity_log')}
-            </NavLink>
             {(user.role === 'super_admin' || user.role === 'admin') && (
               <NavLink
                 to="/lines"
@@ -276,6 +270,12 @@ function App() {
                 {t('nav_users')}
               </NavLink>
             )}
+            <NavLink
+              to="/activity-log"
+              className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}
+            >
+              {t('nav_activity_log')}
+            </NavLink>
           </div>
           <div className="user-menu">
             <div className="header-lang-selector">
