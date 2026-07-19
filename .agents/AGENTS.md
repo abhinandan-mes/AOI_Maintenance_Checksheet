@@ -28,6 +28,8 @@
   * **DISAPPROVED (被退回)**: Red (`background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2`)
 * **Active Timeline Highlights**: Workflow timelines must highlight the currently active pending step (e.g. orange for pending engineer, purple for pending manager) instead of showing a flat gray marker.
 * **Consolidated Homepage Activity Log**: The homepage activity log must group activities by Line, Period, User, Action, and time, displaying only a single line-wise row (omitting equipment type badges and specific machine listings).
+* **Activity Log Details Modal**: The dedicated Activity Log page must include a "Details" (eye icon) action button that opens a comprehensive pop-up modal displaying the full event details (including specific machines and IP addresses).
+
 
 ## Checksheet Form Layout (Excel-Style)
 * **5-Column Excel Table Layout**: The maintenance checksheet form (`MaintenanceForm.js`) must render check items as a 5-column Excel-style grid table: `Cycle | Maintenance Check Content | First Month | Second Month | Third Month`. This replaces the old single-column vertical checkbox list. The rendering function is `renderExcelChecks()`.
