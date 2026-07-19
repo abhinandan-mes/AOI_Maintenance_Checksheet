@@ -779,6 +779,7 @@ export default function MaintenanceForm({ currentUser }) {
   // ══════════════════════════════════════════════════════════════════════════
   if (!formStarted && !isEditMode) {
     return (
+      <>
       <div className="activity-container animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 40px' }}>
         {/* ── Header ── */}
         <div className="activity-header" style={{ marginBottom: '24px' }}>
@@ -981,6 +982,19 @@ export default function MaintenanceForm({ currentUser }) {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        confirmText={confirmConfig.confirmText}
+        cancelText={confirmConfig.cancelText}
+        showCancel={confirmConfig.showCancel}
+        isDanger={confirmConfig.isDanger}
+        onConfirm={confirmConfig.onConfirm}
+        onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        language={language}
+      />
+      </>
     );
   }
 

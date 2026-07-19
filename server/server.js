@@ -6,6 +6,7 @@ const path = require('path');
 require('dotenv').config();
 
 const initializeDatabase = require('./config/schema');
+const healthRouter = require('./routes/health');
 const authRoutes = require('./routes/auth');
 const maintenanceRecordRoutes = require('./routes/maintenanceRecord');
 const { authenticateToken } = require('./middleware/auth');
@@ -35,16 +36,14 @@ const loginLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 
 // Routes
+app.use('/api', healthRouter);   // <‑‑ Public health endpoint
 app.use('/api', authRoutes);
 app.use('/api', authenticateToken, maintenanceRecordRoutes);
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
-});
+
 
 async function startServer() {
   await initializeDatabase();
