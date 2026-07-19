@@ -108,3 +108,13 @@ model SystemEventLog {
 
   @@map("system_event_logs")
 }
+
+model LineStatus {
+  id           Int      @id @default(autoincrement())
+  line         String   @unique @db.VarChar(20)
+  is_installed Boolean  @default(true)
+  updated_by   String?  @db.VarChar(100)
+  updated_at   DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@map("line_status")
+}

@@ -7,7 +7,8 @@ import WorkflowModal from './WorkflowModal';
 import ConfirmModal from './ConfirmModal';
 import ImageUpload from './ImageUpload';
 
-const lineOptions = Array.from({ length: 25 }, (_, i) => String(401 + i));
+// Fallback line list (used while API loads)
+const ALL_LINES_FALLBACK = Array.from({ length: 25 }, (_, i) => String(401 + i));
 
 const MACHINE_CONFIG = [
   {
@@ -88,6 +89,18 @@ export default function MaintenanceForm({ currentUser }) {
   const [selectedLine, setSelectedLine] = useState('');
   const [formStarted, setFormStarted] = useState(isEditMode);
   const [maintenanceType, setMaintenanceType] = useState(''); // '' | 'Weekly' | 'Monthly' | 'Yearly'
+  const [lineOptions, setLineOptions] = useState(ALL_LINES_FALLBACK);
+
+  // Fetch installed lines from backend
+  useEffect(() => {
+    apiService.getInstalledLines()
+      .then(res => {
+        if (res.data && res.data.data && res.data.data.length > 0) {
+          setLineOptions(res.data.data);
+        }
+      })
+      .catch(() => { /* fallback to ALL_LINES_FALLBACK */ });
+  }, []);
 
   // ── Shared state ──────────────────────────────────────────────────────────
   const [common, setCommon] = useState({

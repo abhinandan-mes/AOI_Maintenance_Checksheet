@@ -111,6 +111,7 @@ export const translations = {
     nav_reports: "Reports",
     nav_users: "User Management",
     nav_activity_log: "Activity Log",
+    nav_line_mgmt: "Line Management",
     nav_logout: "Logout",
     nav_loading: "Loading Maintenance Checksheet...",
 
@@ -430,6 +431,7 @@ export const translations = {
     nav_reports: "保养报表",
     nav_users: "用户管理",
     nav_activity_log: "活动日志",
+    nav_line_mgmt: "产线管理",
     nav_logout: "退出登录",
     nav_loading: "正在加载设备保养系统...",
 

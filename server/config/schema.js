@@ -58,6 +58,11 @@ async function initializeDatabase() {
     }
     console.log('👤 Default role users checked/created successfully');
     console.log('👤 Default admin user checked/created successfully');
+
+    // Seed line installation statuses
+    const lineStatusModel = require('../models/LineStatus');
+    await lineStatusModel.seedLines();
+    console.log('📍 Line statuses seeded successfully');
   } catch (error) {
     console.error('❌ Error during database initialization:', error);
     throw error;

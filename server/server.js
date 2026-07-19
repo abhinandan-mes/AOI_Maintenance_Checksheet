@@ -9,6 +9,7 @@ const initializeDatabase = require('./config/schema');
 const healthRouter = require('./routes/health');
 const authRoutes = require('./routes/auth');
 const maintenanceRecordRoutes = require('./routes/maintenanceRecord');
+const lineStatusRoutes = require('./routes/lineStatus');
 const { authenticateToken } = require('./middleware/auth');
 const startCleanupJob = require('./jobs/cleanup');
 
@@ -39,6 +40,7 @@ app.use('/api/auth/login', loginLimiter);
 app.use('/api', healthRouter);   // <‑‑ Public health endpoint
 app.use('/api', authRoutes);
 app.use('/api', authenticateToken, maintenanceRecordRoutes);
+app.use('/api', authenticateToken, lineStatusRoutes);
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

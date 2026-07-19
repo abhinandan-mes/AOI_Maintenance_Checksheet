@@ -111,6 +111,7 @@ export default function ActivityLog({ currentUser }) {
   const [error, setError] = useState('');
   const [lastRefresh, setLastRefresh] = useState(0);
   const [isCooldown, setIsCooldown] = useState(false);
+  const [selectedLog, setSelectedLog] = useState(null);
 
   // Filter States
   const [userQuery, setUserQuery] = useState('');
@@ -551,6 +552,7 @@ export default function ActivityLog({ currentUser }) {
                 <th>{language === 'zh' ? '操作类型' : 'Activity'}</th>
                 <th>{language === 'zh' ? '执行用户' : 'User'}</th>
                 <th>{language === 'zh' ? 'IP 地址' : 'IP Address'}</th>
+                <th style={{ textAlign: 'center' }}>{language === 'zh' ? '详情' : 'Details'}</th>
               </tr>
             </thead>
             <tbody>
@@ -599,6 +601,15 @@ export default function ActivityLog({ currentUser }) {
                       <td>
                         <code className="log-ip-code">{event.ip}</code>
                       </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button 
+                          className="btn-view-details" 
+                          onClick={() => setSelectedLog(event)}
+                          title={language === 'zh' ? '查看详情' : 'View Details'}
+                        >
+                          <EyeIcon />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -642,6 +653,71 @@ export default function ActivityLog({ currentUser }) {
           </div>
         )}
       </div>
+
+      {/* ── Log Details Modal Overlay ── */}
+      {selectedLog && (
+        <div className="global-modal-overlay" onClick={() => setSelectedLog(null)}>
+          <div className="global-modal-content log-detail-modal" onClick={e => e.stopPropagation()}>
+            <div className="global-modal-header">
+              <h2>{language === 'zh' ? `日志明细` : `Log Entry Details`}</h2>
+              <button className="global-modal-close" onClick={() => setSelectedLog(null)}>×</button>
+            </div>
+            <div className="global-modal-body">
+              <div className="details-grid">
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '执行用户' : 'USER'}</span>
+                  <span className="detail-value"><strong>{selectedLog.user}</strong></span>
+                </div>
+                
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '产线' : 'LINE'}</span>
+                  <span className="detail-value" style={{ fontWeight: 700, color: '#1e3a8a' }}>
+                    {selectedLog.line === '—' ? '—' : `Line ${selectedLog.line}`}
+                  </span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '保养周期' : 'PERIOD'}</span>
+                  <span className="detail-value">{selectedLog.period}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '相关设备' : 'MACHINES'}</span>
+                  <span className="detail-value">
+                    {selectedLog.machines && selectedLog.machines.length > 0 && selectedLog.machines[0] !== 'SYSTEM'
+                      ? selectedLog.machines.join(', ')
+                      : '—'}
+                  </span>
+                </div>
+
+                <div className="detail-row full-width">
+                  <span className="detail-label">{language === 'zh' ? '活动类型' : 'ACTIVITY TYPE'}</span>
+                  <span className="detail-value">
+                    <span className={`log-pill ${getActivityBadgeClass(selectedLog.action)}`}>
+                      {language === 'zh' ? selectedLog.actionLabelZh : selectedLog.actionLabelEn}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '时间戳' : 'TIMESTAMP'}</span>
+                  <span className="detail-value">{formatDate(selectedLog.timestamp)}</span>
+                </div>
+
+                <div className="detail-row">
+                  <span className="detail-label">{language === 'zh' ? '客户端IP' : 'CLIENT IP'}</span>
+                  <span className="detail-value"><code>{selectedLog.ip || '—'}</code></span>
+                </div>
+              </div>
+            </div>
+            <div className="global-modal-footer">
+              <button className="btn-modal-close" onClick={() => setSelectedLog(null)}>
+                {language === 'zh' ? '关闭' : 'Close'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
