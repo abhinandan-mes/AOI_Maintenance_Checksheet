@@ -199,7 +199,7 @@ export default function LoginPage({ onLogin }) {
       </main>
 
       <div className="login-footer-info">
-        <p>AOI Maintenance Checksheet &copy; 2026 VIVO</p>
+        <p>AOI Maintenance Checksheet &copy; 2026 <span className="small-brand">vivo</span> | <span className="footer-version">V1.19.7.26</span></p>
         <p className="footer-credit">
           Designed, Developed &amp; Maintained by{" "}
           <a 

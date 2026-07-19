@@ -57,6 +57,10 @@
 * **Audit Trail**: Line status toggles are logged to `SystemEventLog` with event type `LINE_STATUS_UPDATE`.
 * **Navigation Position**: Line Management tab is positioned after **Activity Log** and before **User Management** in the header nav bar.
 
+## Footer Branding & Dynamic Versioning
+* **Dynamic Version Tag**: The footer inside `App.js` and `LoginPage.js` must contain a version string in the format `V1.DD.M.YY` (representing the date changes were made/committed) placed right beside the vivo brand. **Whenever you make code changes or commit to this project, you must manually update this version tag to today's date.**
+* **Font Sizing & Styles**: The `vivo` brand must use the `.small-brand` class (font-size `0.78rem`) and the version string must use `.footer-version` (color `#3b82f6`).
+
 ## Version Control & Workflow
 * **Branching Rule**: ALWAYS create a new git branch before making any code modifications instead of committing directly to the main branch.
 

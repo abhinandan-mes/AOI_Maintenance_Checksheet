@@ -33,5 +33,14 @@ body {
   display: inline-block;
 }
 
+.small-brand {
+  text-transform: lowercase;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
 
-
+.footer-version {
+  color: #3b82f6; /* Blue color matching the image */
+  font-weight: 600;
+}
