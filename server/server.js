@@ -37,13 +37,15 @@ const loginLimiter = rateLimit({
 app.use('/api/auth/login', loginLimiter);
 
 // Routes
-app.use('/api', healthRouter);   // <-- Public health endpoint
+app.use('/api', healthRouter);   // <‑‑ Public health endpoint
 app.use('/api', authRoutes);
 app.use('/api', authenticateToken, maintenanceRecordRoutes);
 app.use('/api', authenticateToken, lineStatusRoutes);
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
 
 async function startServer() {
   await initializeDatabase();
