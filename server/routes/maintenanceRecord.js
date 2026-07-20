@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const maintenanceRecordController = require('../controllers/MaintenanceRecordController');
 const { validateMaintenanceRecord } = require('../middleware/validation');
@@ -8,10 +9,16 @@ const { requireRoles } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '../uploads/');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/'));
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
