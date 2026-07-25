@@ -1,6 +1,7 @@
 # SMT Equipment Maintenance Checksheet System Rules
 
 ## Layout & Brand
+* **Favicon**: The browser tab icon must use the `vivo-logo.svg` vector graphic (linked in `client/public/index.html` as `favicon.svg`) instead of the default React logo or empty globe.
 * The system brand name in the header and login page is **AOI Team Maintenance Checksheet** (or **AOI 团队保养检查表** in Chinese).
 * The login title is **AOI Team Maintenance Records** (or **AOI 团队设备保养记录** in Chinese).
 
