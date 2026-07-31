@@ -459,13 +459,30 @@ export default function Reports({ currentUser }) {
     document.body.removeChild(link);
   };
 
-  const executeExportPDF = () => {
+  const getBase64ImageFromUrl = async (imageUrl) => {
+    try {
+      const res = await fetch(imageUrl);
+      const blob = await res.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch(e) {
+      console.error('Failed to load image', e);
+      return null;
+    }
+  };
+
+  const executeExportPDF = async () => {
     const selectedGroups = generateGroupedData();
     const doc = new jsPDF({ orientation: 'portrait', format: 'a4' });
     
     let currentY = 15;
 
-    selectedGroups.forEach((group, index) => {
+    for (let index = 0; index < selectedGroups.length; index++) {
+      const group = selectedGroups[index];
       if (index > 0) {
         doc.addPage();
         currentY = 15;
@@ -486,87 +503,77 @@ export default function Reports({ currentUser }) {
       const preAoi = group.records.find(r => r.equipment_type === 'PRE_AOI') || {};
       const postAoi = group.records.find(r => r.equipment_type === 'POST_AOI') || {};
 
-      // In standard jsPDF Helvetica, ✔ and ✘ might render poorly.
-      // We will try standard 'v' and 'X' if unicode fails, but let's use the UTF-8 text and rely on autoTable's rendering.
-      // A common PDF trick is using 'Y' and 'N' or 'Pass'/'Fail' if font is missing. We will try tick/cross.
+      const machines = [
+        { title: 'LASER', data: laser },
+        { title: 'SPI', data: spi },
+        { title: 'PRE-AOI', data: preAoi },
+        { title: 'POST-AOI', data: postAoi }
+      ];
+
       const getVal = (rec, key) => {
-        if (rec[key] === 1 || rec[key] === true) return 'Pass';
-        if (rec[key] === 0 || rec[key] === false) return 'Fail';
+        if (rec[key] === 1 || rec[key] === true) return '√';
+        if (rec[key] === 0 || rec[key] === false) return 'X';
         return '-';
       };
 
-      const body = [];
-      body.push(['Machine Name', laser.machine_name||'-', spi.machine_name||'-', preAoi.machine_name||'-', postAoi.machine_name||'-']);
-      body.push(['Asset No', laser.machine_asset_no||'-', spi.machine_asset_no||'-', preAoi.machine_asset_no||'-', postAoi.machine_asset_no||'-']);
-      
-      monthlyChecks.forEach(c => {
-        body.push([c.label, getVal(laser, c.key), getVal(spi, c.key), getVal(preAoi, c.key), getVal(postAoi, c.key)]);
-      });
+      for (const m of machines) {
+        if (currentY > 260) {
+          doc.addPage();
+          currentY = 15;
+        }
 
-      if (group.period === 'Third Month') {
-        body.push([{ content: 'Quarterly Checks', colSpan: 5, styles: { fillColor: [241, 245, 249], fontStyle: 'bold', textColor: [30, 58, 138] } }]);
-        quarterlyChecks.forEach(c => {
-          body.push([c.label, getVal(laser, c.key), getVal(spi, c.key), getVal(preAoi, c.key), getVal(postAoi, c.key)]);
+        doc.setFontSize(12);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`${m.title} (Machine: ${m.data.machine_name || '-'}, Asset: ${m.data.machine_asset_no || '-'})`, 14, currentY);
+        currentY += 4;
+
+        const body = [];
+        monthlyChecks.forEach(c => {
+          body.push([c.label, getVal(m.data, c.key)]);
         });
+
+        if (group.period === 'Third Month' || group.period === 'Yearly') {
+          body.push([{ content: 'Quarterly Checks', colSpan: 2, styles: { fillColor: [241, 245, 249], fontStyle: 'bold', textColor: [30, 58, 138], halign: 'left' } }]);
+          quarterlyChecks.forEach(c => {
+            body.push([c.label, getVal(m.data, c.key)]);
+          });
+        }
+
+        autoTable(doc, {
+          head: [['Check Item', 'Result']],
+          body: body,
+          startY: currentY,
+          styles: { fontSize: 9, cellPadding: 4, overflow: 'linebreak', textColor: [51, 65, 85], lineColor: [226, 232, 240], lineWidth: 0.1 },
+          headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          columnStyles: { 
+            0: { cellWidth: 140 },
+            1: { halign: 'center', fontStyle: 'bold', cellWidth: 35 }
+          },
+          didParseCell: function(data) {
+            if (data.section === 'body' && data.column.index === 1) {
+              if (data.cell.raw === '√') data.cell.styles.textColor = [4, 120, 87]; // Green
+              if (data.cell.raw === 'X') data.cell.styles.textColor = [185, 28, 28]; // Red
+            }
+          }
+        });
+        
+        currentY = doc.lastAutoTable.finalY + 8;
       }
 
-      autoTable(doc, {
-        head: [['Check Item', 'LASER', 'SPI', 'PRE-AOI', 'POST-AOI']],
-        body: body,
-        startY: currentY,
-        styles: { fontSize: 8.5, cellPadding: 4, overflow: 'linebreak', textColor: [51, 65, 85], lineColor: [226, 232, 240], lineWidth: 0.1 },
-        headStyles: { fillColor: [30, 58, 138], textColor: 255, fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        columnStyles: { 
-          0: { cellWidth: 70, fontStyle: 'bold' },
-          1: { halign: 'center' },
-          2: { halign: 'center' },
-          3: { halign: 'center' },
-          4: { halign: 'center' }
-        },
-        didParseCell: function(data) {
-          if (data.section === 'body' && data.column.index > 0) {
-            if (data.cell.raw === 'Pass') data.cell.styles.textColor = [4, 120, 87]; // Green
-            if (data.cell.raw === 'Fail') data.cell.styles.textColor = [185, 28, 28]; // Red
-          }
-        }
-      });
-      
-      currentY = doc.lastAutoTable.finalY + 8;
-      
       if (group.records[0] && group.records[0].remarks) {
         doc.setFontSize(9.5);
         doc.setTextColor(71, 85, 105);
         doc.text(`Remarks: ${group.records[0].remarks}`, 14, currentY);
         currentY += 8;
       }
-      
-      const allPaths = [];
-      ['Laser', 'SPI', 'Pre-AOI', 'Post-AOI'].forEach(mName => {
-        const paths = (mName === 'Laser' ? laser.image_paths :
-                       mName === 'SPI' ? spi.image_paths :
-                       mName === 'Pre-AOI' ? preAoi.image_paths :
-                       postAoi.image_paths) || [];
-        paths.forEach((p, idx) => {
-          allPaths.push({ label: `${mName} ${idx + 1}`, path: p });
-        });
-      });
 
-      if (allPaths.length > 0) {
-        doc.setFontSize(9.5);
-        doc.setTextColor(37, 99, 235);
-        doc.text(`Attached Images: ${allPaths.length} image(s) available.`, 14, currentY);
-        currentY += 6;
-        allPaths.forEach((imgObj) => {
-          const url = `${window.location.protocol}//${window.location.hostname}:5010${imgObj.path}`;
-          doc.text(`- ${imgObj.label}: ${url}`, 18, currentY);
-          currentY += 5;
-        });
-        currentY += 3;
-      }
-      
       // Approval History block
-      currentY += 4;
+      if (currentY > 240) {
+        doc.addPage();
+        currentY = 15;
+      }
+
       doc.setFillColor(248, 250, 252);
       doc.setDrawColor(226, 232, 240);
       doc.rect(14, currentY, 182, 35, 'FD');
@@ -589,7 +596,56 @@ export default function Reports({ currentUser }) {
       doc.setTextColor(30, 58, 138);
       doc.text(`Current Status: ${group.status}`, 18, currentY + 32);
       
-    });
+      currentY += 45;
+
+      // Images
+      const allPaths = [];
+      machines.forEach(m => {
+        const paths = m.data.image_paths || [];
+        paths.forEach((p, idx) => {
+          allPaths.push({ label: `${m.title} Image ${idx + 1}`, path: p });
+        });
+      });
+
+      if (allPaths.length > 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(15, 23, 42);
+        doc.text('Attached Images', 14, currentY);
+        currentY += 6;
+
+        for (const imgObj of allPaths) {
+          const url = `${window.location.protocol}//${window.location.hostname}:5010${imgObj.path}`;
+          const base64 = await getBase64ImageFromUrl(url);
+          
+          if (base64) {
+            // Check if we need a new page for image (assuming height ~ 100px)
+            if (currentY > 200) {
+              doc.addPage();
+              currentY = 15;
+            }
+            doc.setFontSize(9);
+            doc.setTextColor(71, 85, 105);
+            doc.text(imgObj.label, 14, currentY);
+            currentY += 4;
+            
+            try {
+              // Try to maintain aspect ratio, but fallback to 140x90
+              doc.addImage(base64, 'JPEG', 14, currentY, 140, 90);
+              currentY += 98;
+            } catch (err) {
+              doc.text(`(Failed to embed image: ${imgObj.label})`, 14, currentY);
+              currentY += 6;
+            }
+          } else {
+            doc.setFontSize(9);
+            doc.setTextColor(185, 28, 28);
+            doc.text(`(Could not load image: ${imgObj.label})`, 14, currentY);
+            currentY += 6;
+          }
+        }
+      }
+      
+    }
     
     const lineNames = [...new Set(selectedGroups.map(g => g.line))].join('_');
     doc.save(`AOI_Maintenance_Reports_Line_${lineNames}_${new Date().toISOString().split('T')[0]}.pdf`);
