@@ -558,7 +558,7 @@ export default function Reports({ currentUser }) {
         doc.text(`Attached Images: ${allPaths.length} image(s) available.`, 14, currentY);
         currentY += 6;
         allPaths.forEach((imgObj) => {
-          const url = `http://localhost:5010${imgObj.path}`;
+          const url = `${window.location.protocol}//${window.location.hostname}:5010${imgObj.path}`;
           doc.text(`- ${imgObj.label}: ${url}`, 18, currentY);
           currentY += 5;
         });
@@ -762,7 +762,7 @@ export default function Reports({ currentUser }) {
       if (allPaths.length > 0) {
         htmlContent += `<div style="margin-top: 10px; font-size: 12px; color: #2563eb;"><strong>Attached Images:</strong><ul style="margin-top: 4px; padding-left: 20px;">`;
         allPaths.forEach((imgObj) => {
-          const url = `http://localhost:5010${imgObj.path}`;
+          const url = `${window.location.protocol}//${window.location.hostname}:5010${imgObj.path}`;
           htmlContent += `<li><a href="${url}" target="_blank">${imgObj.label}</a></li>`;
         });
         htmlContent += `</ul></div>`;

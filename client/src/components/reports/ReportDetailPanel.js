@@ -143,7 +143,7 @@ export default function ReportDetailPanel({
                     </strong>
                     <div className="premium-machine-images">
                       <ImageUpload 
-                        images={rec.image_paths.map(p => ({ url: `http://localhost:5010${p}` }))} 
+                        images={rec.image_paths.map(p => ({ url: `${window.location.protocol}//${window.location.hostname}:5010${p}` }))} 
                         setImages={() => {}} 
                         readOnly={true} 
                       />

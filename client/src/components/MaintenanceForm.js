@@ -352,7 +352,7 @@ export default function MaintenanceForm({ currentUser }) {
                 status: rec.status,
                 rejection_reason: rec.rejection_reason,
                 image_paths: Array.isArray(rec.image_paths) 
-                  ? rec.image_paths.map(p => ({ url: `http://localhost:5010${p}`, path: p })) 
+                  ? rec.image_paths.map(p => ({ url: `${window.location.protocol}//${window.location.hostname}:5010${p}`, path: p })) 
                   : [],
                 engineer_reviewed_by: rec.engineer_reviewed_by,
                 manager_reviewed_by: rec.manager_reviewed_by
