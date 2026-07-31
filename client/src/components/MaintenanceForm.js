@@ -46,8 +46,8 @@ const MACHINE_CONFIG = [
   },
   {
     key: 'POST_AOI',
-    label: 'Post-AOI',
-    labelZh: 'Post-AOI 设备',
+    label: 'Parmi AOI',
+    labelZh: 'Parmi AOI 设备',
     color: '#10b981',
     colorLight: '#ecfdf5',
     colorBorder: '#d1fae5',

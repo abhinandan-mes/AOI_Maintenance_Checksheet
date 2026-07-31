@@ -92,12 +92,15 @@ export default function ReportChecklistTable({
               {language === 'zh' ? '保养检查内容' : 'Maintenance Check Content'}
             </th>
             <th style={{ padding: '12px 16px', color: '#64748b', fontWeight: 600 }}>
-              {language === 'zh' ? '月度/季度操作项' : 'Monthly/Quarterly Details'}
+              {primaryRecord.period === 'Yearly' 
+                ? (language === 'zh' ? '年度操作项' : 'Yearly Details') 
+                : (language === 'zh' ? '月度/季度操作项' : 'Monthly/Quarterly Details')}
             </th>
             <th style={{ padding: '12px 16px', width: '120px', textAlign: 'center', borderLeft: '1px solid #e2e8f0', color: '#1e40af' }}>
               {primaryRecord.period === 'First Month' && (language === 'zh' ? '第一月 (结果)' : 'First Month (Result)')}
               {primaryRecord.period === 'Second Month' && (language === 'zh' ? '第二月 (结果)' : 'Second Month (Result)')}
               {primaryRecord.period === 'Third Month' && (language === 'zh' ? '第三月 (结果)' : 'Third Month (Result)')}
+              {primaryRecord.period === 'Yearly' && (language === 'zh' ? '年度 (结果)' : 'Yearly (Result)')}
             </th>
           </tr>
         </thead>
@@ -112,14 +115,14 @@ export default function ReportChecklistTable({
                 <td style={{ padding: '10px 16px', fontWeight: 600, color: '#1e3a8a' }}>
                   {idx === 0 && (
                     <span style={{
-                      background: '#eff6ff',
-                      color: '#1d4ed8',
+                      background: primaryRecord.period === 'Yearly' ? '#fff7ed' : '#eff6ff',
+                      color: primaryRecord.period === 'Yearly' ? '#c2410c' : '#1d4ed8',
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontSize: '0.75rem',
-                      border: '1px solid #bfdbfe'
+                      border: primaryRecord.period === 'Yearly' ? '1px solid #ffedd5' : '1px solid #bfdbfe'
                     }}>
-                      {language === 'zh' ? '月度' : 'Monthly'}
+                      {primaryRecord.period === 'Yearly' ? (language === 'zh' ? '年度' : 'Yearly') : (language === 'zh' ? '月度' : 'Monthly')}
                     </span>
                   )}
                 </td>
@@ -152,14 +155,14 @@ export default function ReportChecklistTable({
                 <td style={{ padding: '10px 16px', fontWeight: 600, color: '#6d28d9' }}>
                   {idx === 0 && (
                     <span style={{
-                      background: '#f5f3ff',
-                      color: '#6d28d9',
+                      background: primaryRecord.period === 'Yearly' ? '#fff7ed' : '#f5f3ff',
+                      color: primaryRecord.period === 'Yearly' ? '#c2410c' : '#6d28d9',
                       padding: '2px 8px',
                       borderRadius: '4px',
                       fontSize: '0.75rem',
-                      border: '1px solid #ddd6fe'
+                      border: primaryRecord.period === 'Yearly' ? '1px solid #ffedd5' : '1px solid #ddd6fe'
                     }}>
-                      {language === 'zh' ? '季度' : 'Quarterly'}
+                      {primaryRecord.period === 'Yearly' ? (language === 'zh' ? '年度' : 'Yearly') : (language === 'zh' ? '季度' : 'Quarterly')}
                     </span>
                   )}
                 </td>
