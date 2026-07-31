@@ -90,7 +90,7 @@ export default function Reports({ currentUser }) {
   });
   
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(40);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -1179,6 +1179,47 @@ export default function Reports({ currentUser }) {
               })}
             </tbody>
           </table>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#fff', borderTop: '1px solid #e2e8f0', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
+              <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 500 }}>
+                {language === 'zh' ? `第 ${page} 页 / 共 ${totalPages} 页` : `Page ${page} of ${totalPages}`}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  disabled={page === 1 || loading}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  style={{ 
+                    padding: '6px 16px', 
+                    border: '1px solid #cbd5e1', 
+                    borderRadius: '6px', 
+                    background: page === 1 ? '#f8fafc' : '#ffffff', 
+                    color: page === 1 ? '#94a3b8' : '#334155', 
+                    cursor: page === 1 ? 'not-allowed' : 'pointer',
+                    fontWeight: 500
+                  }}
+                >
+                  {language === 'zh' ? '上一页' : 'Previous'}
+                </button>
+                <button 
+                  disabled={page === totalPages || loading}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  style={{ 
+                    padding: '6px 16px', 
+                    border: '1px solid #cbd5e1', 
+                    borderRadius: '6px', 
+                    background: page === totalPages ? '#f8fafc' : '#ffffff', 
+                    color: page === totalPages ? '#94a3b8' : '#334155', 
+                    cursor: page === totalPages ? 'not-allowed' : 'pointer',
+                    fontWeight: 500
+                  }}
+                >
+                  {language === 'zh' ? '下一页' : 'Next'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
       <WorkflowModal
