@@ -511,8 +511,8 @@ export default function Reports({ currentUser }) {
       ];
 
       const getVal = (rec, key) => {
-        if (rec[key] === 1 || rec[key] === true) return '√';
-        if (rec[key] === 0 || rec[key] === false) return 'X';
+        if (rec[key] === 1 || rec[key] === true) return 'PASS';
+        if (rec[key] === 0 || rec[key] === false) return 'FAIL';
         return '-';
       };
 
@@ -552,8 +552,30 @@ export default function Reports({ currentUser }) {
           },
           didParseCell: function(data) {
             if (data.section === 'body' && data.column.index === 1) {
-              if (data.cell.raw === '√') data.cell.styles.textColor = [4, 120, 87]; // Green
-              if (data.cell.raw === 'X') data.cell.styles.textColor = [185, 28, 28]; // Red
+              if (data.cell.raw === 'PASS' || data.cell.raw === 'FAIL') {
+                // Clear the text so we can draw the icon manually
+                data.cell.text = '';
+              }
+            }
+          },
+          didDrawCell: function(data) {
+            if (data.section === 'body' && data.column.index === 1) {
+              const x = data.cell.x + data.cell.width / 2;
+              const y = data.cell.y + data.cell.height / 2;
+              
+              if (data.cell.raw === 'PASS') {
+                doc.setDrawColor(4, 120, 87); // Green
+                doc.setLineWidth(0.8);
+                // Draw tick
+                doc.line(x - 2.5, y, x - 0.5, y + 2);
+                doc.line(x - 0.5, y + 2, x + 3.5, y - 3);
+              } else if (data.cell.raw === 'FAIL') {
+                doc.setDrawColor(185, 28, 28); // Red
+                doc.setLineWidth(0.8);
+                // Draw cross
+                doc.line(x - 2.5, y - 2.5, x + 2.5, y + 2.5);
+                doc.line(x + 2.5, y - 2.5, x - 2.5, y + 2.5);
+              }
             }
           }
         });
