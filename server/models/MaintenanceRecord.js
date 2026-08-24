@@ -122,19 +122,34 @@ const maintenanceRecordModel = {
       ];
     }
     
-    const [totalCount, records] = await Promise.all([
+    const [totalCount, records, statsRaw] = await Promise.all([
       prisma.aoiSpiMaintenanceRecord.count({ where }),
       prisma.aoiSpiMaintenanceRecord.findMany({
         where,
         orderBy: { date: 'desc' },
         skip,
         take: parseInt(limit)
+      }),
+      prisma.aoiSpiMaintenanceRecord.groupBy({
+        by: ['status'],
+        _count: { id: true }
       })
     ]);
+    
+    // Calculate global stats (divide by 4 because 4 machines = 1 checksheet group)
+    let globalStats = { total: 0, approved: 0, pending: 0, disapproved: 0 };
+    statsRaw.forEach(stat => {
+      const groupCount = Math.ceil(stat._count.id / 4);
+      globalStats.total += groupCount;
+      if (stat.status === 'APPROVED') globalStats.approved += groupCount;
+      else if (stat.status === 'DISAPPROVED') globalStats.disapproved += groupCount;
+      else globalStats.pending += groupCount; // SUBMITTED or ENG_APPROVED
+    });
     
     return {
       records,
       totalCount,
+      globalStats,
       page: parseInt(page),
       totalPages: Math.ceil(totalCount / limit)
     };

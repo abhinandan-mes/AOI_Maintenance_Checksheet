@@ -65,3 +65,7 @@
 ## Version Control & Workflow
 * **Branching Rule**: ALWAYS create a new git branch before making any code modifications instead of committing directly to the main branch.
 
+## Checksheet Resubmission API
+* **Resubmit Endpoint**: When a technician resubmits a rejected checksheet in the changeover/checkpoint systems, ensure the correct distinct API is called (e.g. `updateChangeoverChecksheet` for changeovers, `updateCheckpoint` for checkpoints, `updateChecklist` for checklists). Do not mix them up.
+* **Historical Records Time Handling**: Historical records inserted via scripts that lack actual submission times must have their time component hidden in the UI by setting their timestamps to exactly midnight UTC (`00:00:00.000Z`) in the database, and checking for that in the frontend rendering logic.
+

@@ -3,7 +3,15 @@ import React from 'react';
 export default function ReportTimeline({ row = {}, language = 'en', currentUser = {} }) {
   const formatDateTime = (dateStr) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleString(language === 'zh' ? 'zh-CN' : undefined, {
+    const d = new Date(dateStr);
+    if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) {
+      return d.toLocaleDateString(language === 'zh' ? 'zh-CN' : undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+    return d.toLocaleString(language === 'zh' ? 'zh-CN' : undefined, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -93,6 +93,7 @@ export default function Reports({ currentUser }) {
   const [limit, setLimit] = useState(40);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [globalStats, setGlobalStats] = useState(null);
 
 
   const fetchRecords = async () => {
@@ -113,6 +114,9 @@ export default function Reports({ currentUser }) {
       setRows(response.data.records || []);
       setTotalCount(response.data.totalCount || 0);
       setTotalPages(response.data.totalPages || 1);
+      if (response.data.globalStats) {
+        setGlobalStats(response.data.globalStats);
+      }
     } catch (err) {
       setError(err.message || 'Failed to fetch records.');
     } finally {
@@ -369,18 +373,20 @@ export default function Reports({ currentUser }) {
   };
 
   const getApprovalHistoryText = (group) => {
-    const lines = [];
-    if (group.created_at) {
-      lines.push(`Submitted By: ${group.submitted_by} (${new Date(group.created_at).toLocaleString()})`);
-    } else {
-      lines.push(`Submitted By: ${group.submitted_by}`);
-    }
+    const formatTime = (ts) => {
+      if (!ts) return '';
+      const d = new Date(ts);
+      if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) return d.toLocaleDateString();
+      return d.toLocaleString();
+    };
+
+    let lines = [`Submitted By: ${group.submitted_by} (${formatTime(group.created_at)})`];
     
     if (group.engineer_reviewed_by) {
-      lines.push(`Engineer Review: ${group.engineer_reviewed_by} ${group.eng_reviewed_at ? '('+new Date(group.eng_reviewed_at).toLocaleString()+')' : ''}`);
+      lines.push(`Engineer Review: ${group.engineer_reviewed_by} (${formatTime(group.eng_reviewed_at)})`);
     }
     if (group.manager_reviewed_by) {
-      lines.push(`Manager Final: ${group.manager_reviewed_by} ${group.mgr_approved_at ? '('+new Date(group.mgr_approved_at).toLocaleString()+')' : ''}`);
+      lines.push(`Manager Final: ${group.manager_reviewed_by} (${formatTime(group.mgr_approved_at)})`);
     }
     
     lines.push(`Current Status: ${group.status}`);
@@ -392,7 +398,15 @@ export default function Reports({ currentUser }) {
     html += `<h4 style="margin: 0 0 10px 0; color: #334155;">Workflow History</h4>`;
     html += `<table style="width:100%; font-size:12px; font-family:sans-serif; color:#475569;">`;
     
-    const timeStr = (ts) => ts ? new Date(ts).toLocaleString() : 'N/A';
+    const timeStr = (ts) => {
+      if (!ts) return 'N/A';
+      const d = new Date(ts);
+      // If timestamp is exactly midnight UTC, it's a historical record without a specific time
+      if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) {
+        return d.toLocaleDateString();
+      }
+      return d.toLocaleString();
+    };
     
     html += `<tr><td style="padding:4px 0;"><strong>Submitted:</strong></td><td>${group.submitted_by}</td><td style="text-align:right;">${timeStr(group.created_at)}</td></tr>`;
     
@@ -440,10 +454,17 @@ export default function Reports({ currentUser }) {
       csvContent += `\nRemarks:,${escape(group.records[0]?.remarks || 'None')}\n\n`;
       
       // Approval Path
+      const formatTime = (ts) => {
+        if (!ts) return '';
+        const d = new Date(ts);
+        if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) return d.toLocaleDateString();
+        return d.toLocaleString();
+      };
+      
       csvContent += "Approval History\n";
-      csvContent += `Submitted By:,${escape(group.submitted_by)},${group.created_at ? new Date(group.created_at).toLocaleString() : ''}\n`;
-      if (group.engineer_reviewed_by) csvContent += `Engineer Review:,${escape(group.engineer_reviewed_by)},${group.eng_reviewed_at ? new Date(group.eng_reviewed_at).toLocaleString() : ''}\n`;
-      if (group.manager_reviewed_by) csvContent += `Manager Final:,${escape(group.manager_reviewed_by)},${group.mgr_approved_at ? new Date(group.mgr_approved_at).toLocaleString() : ''}\n`;
+      csvContent += `Submitted By:,${escape(group.submitted_by)},${formatTime(group.created_at)}\n`;
+      if (group.engineer_reviewed_by) csvContent += `Engineer Review:,${escape(group.engineer_reviewed_by)},${formatTime(group.eng_reviewed_at)}\n`;
+      if (group.manager_reviewed_by) csvContent += `Manager Final:,${escape(group.manager_reviewed_by)},${formatTime(group.mgr_approved_at)}\n`;
       csvContent += `Current Status:,${escape(group.status)}\n`;
     });
 
@@ -606,7 +627,12 @@ export default function Reports({ currentUser }) {
       
       doc.setFontSize(9);
       doc.setTextColor(71, 85, 105);
-      const timeStr = (ts) => ts ? new Date(ts).toLocaleString() : 'N/A';
+      const timeStr = (ts) => {
+        if (!ts) return 'N/A';
+        const d = new Date(ts);
+        if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0) return d.toLocaleDateString();
+        return d.toLocaleString();
+      };
       doc.text(`Submitted: ${group.submitted_by} (${timeStr(group.created_at)})`, 18, currentY + 14);
       if (group.engineer_reviewed_by) {
         doc.text(`Engineer Review: ${group.engineer_reviewed_by} (${timeStr(group.eng_reviewed_at)})`, 18, currentY + 20);
@@ -1020,7 +1046,7 @@ export default function Reports({ currentUser }) {
       </div>
 
       {/* KPI Stats summary */}
-      <ReportStats rows={allGroupedRows} language={language} />
+      <ReportStats rows={allGroupedRows} globalStats={globalStats} language={language} />
 
       {/* Control filters panel */}
       <ReportFilters

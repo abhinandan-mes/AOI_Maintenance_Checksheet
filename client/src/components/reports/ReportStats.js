@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default function ReportStats({ rows = [], language = 'en' }) {
-  const total = rows.length;
-  const approved = rows.filter(r => r.status === 'APPROVED').length;
-  const pending = rows.filter(r => r.status === 'SUBMITTED' || r.status === 'ENG_APPROVED').length;
-  const rejected = rows.filter(r => r.status === 'DISAPPROVED').length;
+export default function ReportStats({ rows = [], globalStats = null, language = 'en' }) {
+  const total = globalStats ? globalStats.total : rows.length;
+  const approved = globalStats ? globalStats.approved : rows.filter(r => r.status === 'APPROVED').length;
+  const pending = globalStats ? globalStats.pending : rows.filter(r => r.status === 'SUBMITTED' || r.status === 'ENG_APPROVED').length;
+  const rejected = globalStats ? globalStats.disapproved : rows.filter(r => r.status === 'DISAPPROVED').length;
 
   const stats = [
     {
