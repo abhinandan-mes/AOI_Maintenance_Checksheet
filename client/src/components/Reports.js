@@ -936,8 +936,14 @@ export default function Reports({ currentUser }) {
               : 'Audit, search, filter, approve, and export all submitted checksheet groups.'}
           </p>
         </div>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="doc-numbers" style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748b', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <div style={{ marginBottom: '2px' }}><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
+            <div><strong>AOI SPI Doc No.:</strong> INWJZ1-42026060900002</div>
+          </div>
 
-        <div style={{ position: 'relative', display: 'flex', gap: '12px' }}>
+          <div style={{ position: 'relative', display: 'flex', gap: '12px' }}>
           {(currentUser?.role === 'engineer' || currentUser?.role === 'manager' || currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
             <>
               <button
@@ -1042,6 +1048,7 @@ export default function Reports({ currentUser }) {
               </div>
             </>
           )}
+        </div>
         </div>
       </div>
 

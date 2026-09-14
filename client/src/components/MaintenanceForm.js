@@ -795,7 +795,7 @@ export default function MaintenanceForm({ currentUser }) {
       <>
       <div className="activity-container animate-fade-in" style={{ maxWidth: '1100px', margin: '0 auto', padding: '30px 40px' }}>
         {/* ── Header ── */}
-        <div className="activity-header" style={{ marginBottom: '24px' }}>
+        <div className="activity-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div className="header-title">
             <span className="subtitle-admin">
               <span className="sub-tag-bullet">✦</span> {language === 'zh' ? '设备检查' : 'EQUIPMENT CHECK'}
@@ -804,6 +804,10 @@ export default function MaintenanceForm({ currentUser }) {
               <span className="title-icon">📋</span> <span className="premium-heading-gradient">{language === 'zh' ? '设备保养检查表' : 'Maintenance Checksheet'}</span>
             </h1>
             <p>{language === 'zh' ? '选择产线后，同时填写四类设备的保养记录' : 'Select a production line to complete checksheets for Laser, SPI, Pre-AOI, & Post-AOI machines.'}</p>
+          </div>
+          <div className="doc-numbers" style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748b', background: '#f8fafc', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
+            <div style={{ marginBottom: '4px' }}><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
+            <div><strong>AOI SPI Doc No.:</strong> INWJZ1-42026060900002</div>
           </div>
         </div>
 
@@ -1107,64 +1111,74 @@ export default function MaintenanceForm({ currentUser }) {
         <form onSubmit={handleSubmitAll}>
           <fieldset disabled={isReadOnly} style={{ border: 'none', padding: 0, margin: 0 }}>
             {/* ── Machine Tabs ── */}
-            <div className="machine-tabs-wrapper" style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto', paddingBottom: '4px' }}>
-              {MACHINE_CONFIG.map((mc, idx) => {
-                const isActive = activeTab === idx;
-                const isVisited = visitedTabs.includes(idx);
-                const data = machines[mc.key];
-                const isMachineIncomplete = !isReadOnly && (
-                  !data.machine_type.trim() || 
-                  !data.machine_name.trim() || 
-                  !data.machine_asset_no.trim() || 
-                  (!data.image_paths?.length && !isReadOnly) ||
-                  (hasUnchecked(data, mc.key) && !common.remarks.trim())
-                );
-                
-                let borderColor = '#cbd5e1';
-                let bgColor = '#f8fafc';
-                let textColor = '#64748b';
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+              <div className="machine-tabs-wrapper" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                {MACHINE_CONFIG.map((mc, idx) => {
+                  const isActive = activeTab === idx;
+                  const isVisited = visitedTabs.includes(idx);
+                  const data = machines[mc.key];
+                  const isMachineIncomplete = !isReadOnly && (
+                    !data.machine_type.trim() || 
+                    !data.machine_name.trim() || 
+                    !data.machine_asset_no.trim() || 
+                    (!data.image_paths?.length && !isReadOnly) ||
+                    (hasUnchecked(data, mc.key) && !common.remarks.trim())
+                  );
+                  
+                  let borderColor = '#cbd5e1';
+                  let bgColor = '#f8fafc';
+                  let textColor = '#64748b';
 
-                if (isActive) {
-                  borderColor = '#415fff';
-                  bgColor = '#415fff10';
-                  textColor = '#415fff';
-                } else if (isVisited) {
-                  if (isMachineIncomplete) {
-                    borderColor = '#dc2626';
-                    bgColor = '#fef2f2';
-                    textColor = '#dc2626';
-                  } else {
-                    borderColor = '#16a34a';
-                    bgColor = '#f0fdf4';
-                    textColor = '#16a34a';
+                  if (isActive) {
+                    borderColor = '#415fff';
+                    bgColor = '#415fff10';
+                    textColor = '#415fff';
+                  } else if (isVisited) {
+                    if (isMachineIncomplete) {
+                      borderColor = '#dc2626';
+                      bgColor = '#fef2f2';
+                      textColor = '#dc2626';
+                    } else {
+                      borderColor = '#16a34a';
+                      bgColor = '#f0fdf4';
+                      textColor = '#16a34a';
+                    }
                   }
-                }
 
-                return (
-                  <button
-                    key={`tab-${mc.key}`}
-                    type="button"
-                    onClick={() => handleTabChange(idx)}
-                    style={{
-                      padding: '10px 20px',
-                      borderRadius: '30px',
-                      border: isActive ? `2px solid ${borderColor}` : `1px solid ${borderColor}`,
-                      background: bgColor,
-                      color: textColor,
-                      fontWeight: isActive ? '700' : '500',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    <span>{mc.label}</span>
-                    {isMachineIncomplete && isVisited && !isActive && <span style={{ fontSize: '1rem', lineHeight: 1 }} title="Missing required info">⚠️</span>}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={`tab-${mc.key}`}
+                      type="button"
+                      onClick={() => handleTabChange(idx)}
+                      style={{
+                        padding: '10px 20px',
+                        borderRadius: '30px',
+                        border: isActive ? `2px solid ${borderColor}` : `1px solid ${borderColor}`,
+                        background: bgColor,
+                        color: textColor,
+                        fontWeight: isActive ? '700' : '500',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <span>{mc.label}</span>
+                      {isMachineIncomplete && isVisited && !isActive && <span style={{ fontSize: '1rem', lineHeight: 1 }} title="Missing required info">⚠️</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="doc-number-badge" style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748b', background: '#f8fafc', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', whiteSpace: 'nowrap', marginLeft: '16px' }}>
+                {activeTab === 0 ? (
+                  <div><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
+                ) : (
+                  <div><strong>AOI SPI Doc No.:</strong> INWJZ1-42026060900002</div>
+                )}
+              </div>
             </div>
 
             {/* ── Per-Machine Layout (Tabbed) ── */}
