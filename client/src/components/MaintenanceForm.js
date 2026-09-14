@@ -807,7 +807,7 @@ export default function MaintenanceForm({ currentUser }) {
           </div>
           <div className="doc-numbers" style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748b', background: '#f8fafc', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
             <div style={{ marginBottom: '4px' }}><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
-            <div><strong>AOI SPI Doc No.:</strong> INWJZ1-42026060900002</div>
+            <div><strong>AOI & SPI Doc no.:</strong> INWJZ1-42026060900002</div>
           </div>
         </div>
 
@@ -1176,7 +1176,7 @@ export default function MaintenanceForm({ currentUser }) {
                 {activeTab === 0 ? (
                   <div><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
                 ) : (
-                  <div><strong>AOI SPI Doc No.:</strong> INWJZ1-42026060900002</div>
+                  <div><strong>AOI & SPI Doc no.:</strong> INWJZ1-42026060900002</div>
                 )}
               </div>
             </div>

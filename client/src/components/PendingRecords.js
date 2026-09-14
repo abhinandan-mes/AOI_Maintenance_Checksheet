@@ -276,7 +276,7 @@ export default function PendingRecords({ currentUser }) {
                             {language === 'zh' ? '⏳ 待审批' : '⏳ Waiting Mgr. review'}
                             {group.designated_manager_id && (
                               <span style={{ color: '#3b82f6', fontWeight: 600, marginLeft: '4px' }}>
-                                (指定: {group.designated_manager_id})
+                                ({language === 'zh' ? '指定' : 'Designated'}: {group.designated_manager_id})
                               </span>
                             )}
                           </span>
@@ -286,7 +286,7 @@ export default function PendingRecords({ currentUser }) {
                             {language === 'zh' ? '⏳ 待审核签字' : '⏳ Waiting Eng. review'}
                             {group.designated_engineer_id && (
                               <span style={{ color: '#3b82f6', fontWeight: 600, marginLeft: '4px' }}>
-                                (指定: {group.designated_engineer_id})
+                                ({language === 'zh' ? '指定' : 'Designated'}: {group.designated_engineer_id})
                               </span>
                             )}
                           </span>
