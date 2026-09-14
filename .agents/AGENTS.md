@@ -69,3 +69,7 @@
 * **Resubmit Endpoint**: When a technician resubmits a rejected checksheet in the changeover/checkpoint systems, ensure the correct distinct API is called (e.g. `updateChangeoverChecksheet` for changeovers, `updateCheckpoint` for checkpoints, `updateChecklist` for checklists). Do not mix them up.
 * **Historical Records Time Handling**: Historical records inserted via scripts that lack actual submission times must have their time component hidden in the UI by setting their timestamps to exactly midnight UTC (`00:00:00.000Z`) in the database, and checking for that in the frontend rendering logic.
 
+
+## Document Numbers
+* **ISO Document Numbers**: The system must display specific ISO document numbers on the checksheet headers and reports page.
+  * Laser machines: WJZD00-2021020100003`n  * AOI & SPI machines: INWJZ1-42026060900002`n* **Translations Check**: When modifying translated text (like 'Designated' / '??'), always ensure the string is wrapped in a conditional language check to respect the user's language toggle.
