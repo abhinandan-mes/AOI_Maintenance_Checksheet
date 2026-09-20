@@ -1183,7 +1183,7 @@ export default function MaintenanceForm({ currentUser }) {
               </div>
               
               <div className="doc-number-badge" style={{ textAlign: 'right', fontSize: '0.85rem', color: '#64748b', background: '#f8fafc', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', whiteSpace: 'nowrap', marginLeft: '16px' }}>
-                {activeTab === 0 ? (
+                {activeMachineConfig[activeTab]?.key === 'LASER' ? (
                   <div><strong>Laser Doc No.:</strong> WJZD00-2021020100003</div>
                 ) : (
                   <div><strong>AOI & SPI Doc no.:</strong> INWJZ1-42026060900002</div>
