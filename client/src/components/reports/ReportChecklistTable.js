@@ -62,6 +62,16 @@ export default function ReportChecklistTable({
     );
   };
 
+  const filteredMonthlyChecks = consolidatedMonthlyChecks.filter(check => {
+    if (activeTab !== 'Laser' && (check.key === 'm9_clean_dust_collector' || check.key === 'm10_exhaust_pipe_damaged')) return false;
+    return true;
+  });
+
+  const filteredQuarterlyChecks = consolidatedQuarterlyChecks.filter(check => {
+    if (activeTab !== 'Laser' && check.key === 'q4_replace_filter_screen') return false;
+    return true;
+  });
+
   return (
     <div className="report-checklist-table-wrapper" style={{
       background: '#f8fafc',
@@ -106,7 +116,7 @@ export default function ReportChecklistTable({
         </thead>
         <tbody>
           {/* Monthly Checks */}
-          {consolidatedMonthlyChecks.map((check, idx) => {
+          {filteredMonthlyChecks.map((check, idx) => {
             return (
               <tr key={check.key} style={{
                 borderBottom: '1px solid #e2e8f0',
@@ -146,7 +156,7 @@ export default function ReportChecklistTable({
           })}
 
           {/* Quarterly Checks (M3 only) */}
-          {isThirdMonth && consolidatedQuarterlyChecks.map((check, idx) => {
+          {isThirdMonth && filteredQuarterlyChecks.map((check, idx) => {
             return (
               <tr key={check.key} style={{
                 borderBottom: '1px solid #e2e8f0',
