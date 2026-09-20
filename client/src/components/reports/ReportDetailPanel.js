@@ -40,12 +40,16 @@ export default function ReportDetailPanel({
   });
 
   const renderMachineDetails = () => {
-    const tabs = [
+    let tabs = [
       { id: 'Laser', rec: laserRec, color: '#b45309' },
       { id: 'SPI', rec: spiRec, color: '#6d28d9' },
       { id: 'Pre-AOI', rec: preAoiRec, color: '#1d4ed8' },
       { id: 'Post-AOI', rec: postAoiRec, color: '#065f46' }
     ];
+
+    if (String(group.line) === '425') {
+      tabs = tabs.filter(t => t.id === 'SPI' || t.id === 'Pre-AOI');
+    }
 
     const activeRecData = tabs.find(t => t.id === activeTab);
     const rec = activeRecData?.rec;

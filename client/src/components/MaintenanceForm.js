@@ -125,12 +125,20 @@ export default function MaintenanceForm({ currentUser }) {
     POST_AOI: blankMachine(),
   });
 
+  const activeMachineConfig = (() => {
+    const currentLine = String(selectedLine || common.line || '');
+    if (currentLine === '425') {
+      return MACHINE_CONFIG.filter(m => m.key === 'SPI' || m.key === 'PRE_AOI');
+    }
+    return MACHINE_CONFIG;
+  })();
+
   const [activeTab, setActiveTab] = useState(0);
   const [visitedTabs, setVisitedTabs] = useState([0]);
 
   const handleTabChange = (idx) => {
     if (idx !== activeTab && !isReadOnly) {
-      const mc = MACHINE_CONFIG[activeTab];
+      const mc = activeMachineConfig[activeTab];
       const data = machines[mc.key];
       const missing = [];
       if (!data.machine_type.trim()) missing.push(language === 'zh' ? '设备型号' : 'Machine Type');
@@ -462,10 +470,10 @@ export default function MaintenanceForm({ currentUser }) {
     );
   };
 
-  const anyUnchecked = MACHINE_CONFIG.some(m => hasUnchecked(machines[m.key], m.key));
+  const anyUnchecked = activeMachineConfig.some(m => hasUnchecked(machines[m.key], m.key));
   const isAllValid =
     common.line && common.period && common.date && common.designated_engineer_id &&
-    MACHINE_CONFIG.every(m => isMachineValid(m.key)) &&
+    activeMachineConfig.every(m => isMachineValid(m.key)) &&
     (!anyUnchecked || common.remarks.trim());
 
   // ── Submit / Resubmit all 3 records ───────────────────────────────────────
@@ -480,13 +488,13 @@ export default function MaintenanceForm({ currentUser }) {
     if (!common.designated_engineer_id) validationErrors.push(language === 'zh' ? '未选择审核工程师' : 'Review Engineer is not selected');
     if (anyUnchecked && !common.remarks.trim()) validationErrors.push(language === 'zh' ? '存在未勾选项，必须填写备注' : 'Remarks are required for unchecked items');
     
-    const missingMachines = MACHINE_CONFIG.filter(m => !isMachineValid(m.key));
+    const missingMachines = activeMachineConfig.filter(m => !isMachineValid(m.key));
     if (missingMachines.length > 0) {
       const tabs = missingMachines.map(m => m.label).join(', ');
       validationErrors.push(language === 'zh' ? `以下设备标签页缺少设备型号/名称/资产编号: ${tabs}` : `Missing equipment info (Type/Name/Asset No) in tabs: ${tabs}`);
     }
 
-    const missingImages = MACHINE_CONFIG.filter(m => !machines[m.key].image_paths || machines[m.key].image_paths.length === 0);
+    const missingImages = activeMachineConfig.filter(m => !machines[m.key].image_paths || machines[m.key].image_paths.length === 0);
     if (missingImages.length > 0) {
       const tabs = missingImages.map(m => m.label).join(', ');
       validationErrors.push(language === 'zh' ? `以下设备必须上传至少一张状态照片: ${tabs}` : `Mandatory equipment photos are missing in tabs: ${tabs}`);
@@ -496,23 +504,23 @@ export default function MaintenanceForm({ currentUser }) {
       setMessage(`⚠️ ${language === 'zh' ? '无法提交' : 'Cannot submit'}: ${validationErrors.join(' | ')}`);
       
       if (missingMachines.length > 0) {
-        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingMachines[0].key));
+        handleTabChange(activeMachineConfig.findIndex(m => m.key === missingMachines[0].key));
       } else if (missingImages.length > 0) {
-        handleTabChange(MACHINE_CONFIG.findIndex(m => m.key === missingImages[0].key));
+        handleTabChange(activeMachineConfig.findIndex(m => m.key === missingImages[0].key));
       }
       
       return;
     }
     
     const msg = isEditMode
-      ? (language === 'zh' ? `确认修改并重新提交 Line ${common.line} 的 4 份保养记录？` : `Confirm changes and resubmit all 4 records for Line ${common.line}?`)
-      : (language === 'zh' ? `确认提交 Line ${common.line} 全部 4 份保养记录？` : `Submit all 4 maintenance records for Line ${common.line}?`);
+      ? (language === 'zh' ? `确认修改并重新提交 Line ${common.line} 的 ${activeMachineConfig.length} 份保养记录？` : `Confirm changes and resubmit all ${activeMachineConfig.length} records for Line ${common.line}?`)
+      : (language === 'zh' ? `确认提交 Line ${common.line} 全部 ${activeMachineConfig.length} 份保养记录？` : `Submit all ${activeMachineConfig.length} maintenance records for Line ${common.line}?`);
       
     const executeSubmit = async () => {
       setSubmitting(true);
       setMessage('');
       try {
-        for (const key of MACHINE_CONFIG.map(m => m.key)) {
+        for (const key of activeMachineConfig.map(m => m.key)) {
           const d = machines[key];
           
           // 1. Upload new images if any
@@ -616,7 +624,7 @@ export default function MaintenanceForm({ currentUser }) {
       if (!common.designated_engineer_id) errors.push(language === 'zh' ? '未指派审核工程师' : 'Designated Review Engineer');
       if (userRole === 'engineer' && !common.designated_manager_id) errors.push(language === 'zh' ? '未指派终审经理' : 'Designated Final Approval Manager');
 
-      MACHINE_CONFIG.forEach(m => {
+      activeMachineConfig.forEach(m => {
         const d = machines[m.key];
         const mErrors = [];
         if (!d.machine_type.trim()) mErrors.push(language === 'zh' ? '设备型号' : 'Machine Type');
@@ -627,7 +635,7 @@ export default function MaintenanceForm({ currentUser }) {
         }
       });
       
-      const firstErrorMachineIndex = MACHINE_CONFIG.findIndex(m => {
+      const firstErrorMachineIndex = activeMachineConfig.findIndex(m => {
         const d = machines[m.key];
         return !d.machine_type.trim() || !d.machine_name.trim() || !d.machine_asset_no.trim();
       });
@@ -1036,6 +1044,8 @@ export default function MaintenanceForm({ currentUser }) {
                 setFormStarted(false); 
                 setSelectedLine(''); 
                 setMaintenanceType('');
+                setActiveTab(0);
+                setVisitedTabs([0]);
                 setCommon(prev => ({ ...prev, line: '', period: '' })); 
                 sessionStorage.removeItem('maintenanceDraft');
               }}>
@@ -1076,7 +1086,7 @@ export default function MaintenanceForm({ currentUser }) {
             className="topbar-date"
           />
           <div className="progress-row">
-            {MACHINE_CONFIG.map(m => {
+            {activeMachineConfig.map(m => {
               const done = countChecked(machines[m.key], m.key);
               const full = done === getTotalChecks(m.key);
               return (
@@ -1104,7 +1114,7 @@ export default function MaintenanceForm({ currentUser }) {
         )}
         {isReadOnly && isPendingReview && (
           <div className="inspector-banner" style={{ background: '#fffbeb', border: '1px solid #fef3c7', color: '#b45309', marginBottom: '15px' }}>
-            🔍 {language === 'zh' ? `审核模式 — 请检查下方 ${MACHINE_CONFIG.length} 台设备的检查结果并在底部签字。` : `Review Mode — Please inspect checklist results for all ${MACHINE_CONFIG.length} machines and sign off below.`}
+            🔍 {language === 'zh' ? `审核模式 — 请检查下方 ${activeMachineConfig.length} 台设备的检查结果并在底部签字。` : `Review Mode — Please inspect checklist results for all ${activeMachineConfig.length} machines and sign off below.`}
           </div>
         )}
 
@@ -1113,7 +1123,7 @@ export default function MaintenanceForm({ currentUser }) {
             {/* ── Machine Tabs ── */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div className="machine-tabs-wrapper" style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-                {MACHINE_CONFIG.map((mc, idx) => {
+                {activeMachineConfig.map((mc, idx) => {
                   const isActive = activeTab === idx;
                   const isVisited = visitedTabs.includes(idx);
                   const data = machines[mc.key];
@@ -1182,7 +1192,7 @@ export default function MaintenanceForm({ currentUser }) {
             </div>
 
             {/* ── Per-Machine Layout (Tabbed) ── */}
-            {MACHINE_CONFIG.map((mc, idx) => {
+            {activeMachineConfig.map((mc, idx) => {
               if (idx !== activeTab) return null;
               const data    = machines[mc.key];
               const done    = countChecked(data, mc.key);
@@ -1293,8 +1303,8 @@ export default function MaintenanceForm({ currentUser }) {
                       <button 
                         type="button" 
                         onClick={() => { handleTabChange(idx + 1); window.scrollTo({ top: 300, behavior: 'smooth' }); }} 
-                        disabled={idx === MACHINE_CONFIG.length - 1}
-                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid transparent', background: idx === MACHINE_CONFIG.length - 1 ? '#e2e8f0' : mc.color, color: idx === MACHINE_CONFIG.length - 1 ? '#94a3b8' : '#fff', cursor: idx === MACHINE_CONFIG.length - 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                        disabled={idx === activeMachineConfig.length - 1}
+                        style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid transparent', background: idx === activeMachineConfig.length - 1 ? '#e2e8f0' : mc.color, color: idx === activeMachineConfig.length - 1 ? '#94a3b8' : '#fff', cursor: idx === activeMachineConfig.length - 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
                       >
                         {language === 'zh' ? '下一台设备' : 'Next Machine'} →
                       </button>
