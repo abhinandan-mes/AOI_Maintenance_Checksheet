@@ -73,3 +73,5 @@
 ## Document Numbers
 * **ISO Document Numbers**: The system must display specific ISO document numbers on the checksheet headers and reports page.
   * Laser machines: WJZD00-2021020100003`n  * AOI & SPI machines: INWJZ1-42026060900002`n* **Translations Check**: When modifying translated text (like 'Designated' / '??'), always ensure the string is wrapped in a conditional language check to respect the user's language toggle.
+
+* **Line Configuration Exceptions**: Line 425 must only display SPI and Pre-AOI machines (Laser and Post-AOI must be hidden from the checksheet form and report view for this line). The logic must filter the machine config array based on the selected line rather than relying on global constants, and must not hardcode tab indexes for doc number lookups.
